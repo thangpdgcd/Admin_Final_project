@@ -1,0 +1,8 @@
+dist
+node_modules
+backend
+backend/**
+coverage
+.turbo
+.vite
+
