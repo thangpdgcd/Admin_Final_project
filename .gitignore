@@ -12,6 +12,9 @@ dist
 dist-ssr
 *.local
 
+# Do not keep backend inside FE repo
+backend/
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
