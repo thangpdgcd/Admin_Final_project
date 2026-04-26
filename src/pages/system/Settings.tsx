@@ -1,22 +1,43 @@
-import { Link } from "react-router-dom";
-import { Button, Card, Divider, Tag, Typography } from "antd";
+import { Link } from "react-router-dom"
+import { Button, Card, Divider, Tag, Typography } from "antd"
 
 const settingLinks = [
   { title: "User Settings", description: "Personal profile and preferences", href: "/settings/user" },
-  { title: "Account Settings", description: "Account details, security, and sessions", href: "/settings/account" },
-  { title: "Plans & Billing", description: "Subscription, invoices, and billing details", href: "/settings/billing" },
-  { title: "Appearance", description: "Theme, layout density, and UI preferences", href: "/settings/appearance" },
-  { title: "Notifications", description: "Email and in-app notification rules", href: "/settings/notifications" },
-  { title: "Connections", description: "Third-party integrations and API access", href: "/settings/connections" },
-];
+  {
+    title: "Account Settings",
+    description: "Account details, security, and sessions",
+    href: "/settings/account",
+  },
+  {
+    title: "Plans & Billing",
+    description: "Subscription, invoices, and billing details",
+    href: "/settings/billing",
+  },
+  {
+    title: "Appearance",
+    description: "Theme, layout density, and UI preferences",
+    href: "/settings/appearance",
+  },
+  {
+    title: "Notifications",
+    description: "Email and in-app notification rules",
+    href: "/settings/notifications",
+  },
+  {
+    title: "Connections",
+    description: "Third-party integrations and API access",
+    href: "/settings/connections",
+  },
+]
 
-export function Settings() {
+export const Settings = () => {
   return (
     <div className="space-y-6">
       <div className="space-y-1">
         <h2 className="text-2xl font-bold tracking-tight">System Settings</h2>
         <p className="text-muted-foreground">
-          Configure how your ecommerce admin panel behaves across users, billing, appearance, and integrations.
+          Configure how your ecommerce admin panel behaves across users, billing, appearance, and
+          integrations.
         </p>
       </div>
 
@@ -124,5 +145,5 @@ export function Settings() {
         </Card>
       </div>
     </div>
-  );
+  )
 }

@@ -1,5 +1,5 @@
 import * as React from "react"
-import { cn } from "@/lib/utils"
+import { cn } from "@/utils/utils"
 
 type SectionProps = React.ComponentProps<"section"> & {
   title?: React.ReactNode
@@ -23,4 +23,3 @@ export const Section = ({ title, description, actions, className, children, ...p
     </section>
   )
 }
-

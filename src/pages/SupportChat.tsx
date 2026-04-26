@@ -1,23 +1,20 @@
-import * as React from "react";
-import { Search, Send } from "lucide-react";
-import { cn } from "@/lib/utils";
-import { Badge, Button, Drawer, Input } from "antd";
-import { useSupportChat } from "@/features/supportChat/hooks/useSupportChat";
-import { useAuth } from "@/hooks/useAuth";
-import { useIsMobile } from "@/hooks/use-mobile";
-import type { UiConversation, UiMessage } from "@/features/supportChat/model/types";
-import { StaffRoleBadge } from "@/components/chat/StaffRoleBadge";
-import { isStaffRoleId, STAFF_ROLE_ID } from "@/components/chat/staffRole";
-import { resolveUserRole } from "@/utils/authRole";
+import * as React from "react"
+import { Search, Send } from "lucide-react"
+import { cn } from "@/utils/utils"
+import { Badge, Button, Drawer, Input } from "antd"
+import { useSupportChat } from "@/features/supportChat/hooks/useSupportChat"
+import { useAuth } from "@/hooks/useAuth"
+import { useIsMobile } from "@/hooks/use-mobile"
+import type { UiConversation, UiMessage } from "@/features/supportChat/model/types"
+import { StaffRoleBadge } from "@/components/chat/StaffRoleBadge"
+import { isStaffRoleId, STAFF_ROLE_ID } from "@/components/chat/staffRole"
+import { resolveUserRole } from "@/utils/authRole"
 
 const ConversationSkeleton = () => {
   return (
     <div className="space-y-2 p-2">
       {Array.from({ length: 8 }).map((_, i) => (
-        <div
-          key={i}
-          className="flex items-center gap-3 rounded-lg px-3 py-2.5"
-        >
+        <div key={i} className="flex items-center gap-3 rounded-lg px-3 py-2.5">
           <div className="h-9 w-9 rounded-full bg-muted animate-pulse" />
           <div className="min-w-0 flex-1 space-y-2">
             <div className="h-4 w-2/3 rounded bg-muted animate-pulse" />
@@ -26,53 +23,50 @@ const ConversationSkeleton = () => {
         </div>
       ))}
     </div>
-  );
-};
+  )
+}
 
 const MessageSkeleton = () => {
   return (
     <div className="space-y-4 px-3 py-6">
       {Array.from({ length: 6 }).map((_, i) => (
-        <div
-          key={i}
-          className={cn("flex", i % 2 === 0 ? "justify-start" : "justify-end")}
-        >
+        <div key={i} className={cn("flex", i % 2 === 0 ? "justify-start" : "justify-end")}>
           <div className="h-10 w-[70%] max-w-[420px] rounded-2xl bg-muted animate-pulse" />
         </div>
       ))}
     </div>
-  );
-};
+  )
+}
 
 const ScrollToBottomOnNewMessages = ({
   containerRef,
   depKey,
 }: {
-  containerRef: React.RefObject<HTMLDivElement | null>;
-  depKey: string;
+  containerRef: React.RefObject<HTMLDivElement | null>
+  depKey: string
 }) => {
-  const lastScrollInfoRef = React.useRef({ key: "", wasNearBottom: true });
+  const lastScrollInfoRef = React.useRef({ key: "", wasNearBottom: true })
 
   React.useLayoutEffect(() => {
-    const el = containerRef.current;
-    if (!el) return;
-    const thresholdPx = 120;
-    const distanceToBottom = el.scrollHeight - el.scrollTop - el.clientHeight;
+    const el = containerRef.current
+    if (!el) return
+    const thresholdPx = 120
+    const distanceToBottom = el.scrollHeight - el.scrollTop - el.clientHeight
     lastScrollInfoRef.current = {
       key: depKey,
       wasNearBottom: distanceToBottom < thresholdPx,
-    };
-  });
+    }
+  })
 
   React.useLayoutEffect(() => {
-    const el = containerRef.current;
-    if (!el) return;
-    if (!lastScrollInfoRef.current.wasNearBottom) return;
-    el.scrollTop = el.scrollHeight;
-  }, [containerRef, depKey]);
+    const el = containerRef.current
+    if (!el) return
+    if (!lastScrollInfoRef.current.wasNearBottom) return
+    el.scrollTop = el.scrollHeight
+  }, [containerRef, depKey])
 
-  return null;
-};
+  return null
+}
 
 const SidebarItem = ({
   conv,
@@ -80,10 +74,10 @@ const SidebarItem = ({
   unread,
   onClick,
 }: {
-  conv: UiConversation;
-  selected: boolean;
-  unread: number;
-  onClick: () => void;
+  conv: UiConversation
+  selected: boolean
+  unread: number
+  onClick: () => void
 }) => {
   return (
     <button
@@ -91,7 +85,7 @@ const SidebarItem = ({
       onClick={onClick}
       className={cn(
         "flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left transition-colors hover:bg-muted/50",
-        selected && "bg-muted"
+        selected && "bg-muted",
       )}
     >
       <div className="h-9 w-9 shrink-0 rounded-full bg-background/60 border border-border/60 grid place-items-center text-xs font-semibold">
@@ -105,32 +99,30 @@ const SidebarItem = ({
             </span>
             {isStaffRoleId(conv.peerRoleId) && <StaffRoleBadge />}
           </div>
-          <span className="shrink-0 text-xs text-muted-foreground">
-            {conv.timestampLabel}
-          </span>
+          <span className="shrink-0 text-xs text-muted-foreground">{conv.timestampLabel}</span>
         </div>
         <p className="mt-0.5 line-clamp-2 wrap-break-word text-sm text-muted-foreground" title={conv.preview}>
           {conv.preview}
         </p>
       </div>
-      {unread > 0 && (
-        <Badge count={unread} size="small" />
-      )}
+      {unread > 0 && <Badge count={unread} size="small" />}
     </button>
-  );
-};
+  )
+}
 
 const MessageBubble = ({ msg }: { msg: UiMessage }) => {
-  const outgoing = msg.direction === "outgoing";
-  const isFailed = msg.status === "failed";
-  const staffSender = isStaffRoleId(msg.senderRoleId);
+  const outgoing = msg.direction === "outgoing"
+  const isFailed = msg.status === "failed"
+  const staffSender = isStaffRoleId(msg.senderRoleId)
   return (
     <div className={cn("flex", outgoing ? "justify-end" : "justify-start")}>
       <div
         className={cn(
           "max-w-[92%] min-w-0 rounded-2xl px-4 py-2 overflow-hidden wrap-break-word",
-          outgoing ? "rounded-br-md bg-primary text-primary-foreground" : "rounded-bl-md bg-muted text-foreground",
-          isFailed && "opacity-80"
+          outgoing
+            ? "rounded-br-md bg-primary text-primary-foreground"
+            : "rounded-bl-md bg-muted text-foreground",
+          isFailed && "opacity-80",
         )}
       >
         {staffSender && (
@@ -152,13 +144,13 @@ const MessageBubble = ({ msg }: { msg: UiMessage }) => {
         </div>
       </div>
     </div>
-  );
-};
+  )
+}
 
 export const SupportChat = () => {
-  const { user } = useAuth();
-  const isMobile = useIsMobile();
-  const staffMessagesOnly = import.meta.env.VITE_CHAT_STAFF_MESSAGES_ONLY === "true";
+  const { user } = useAuth()
+  const isMobile = useIsMobile()
+  const staffMessagesOnly = import.meta.env.VITE_CHAT_STAFF_MESSAGES_ONLY === "true"
   const {
     connection,
     isLoadingConversations,
@@ -171,65 +163,68 @@ export const SupportChat = () => {
     contactSupport,
     sendTextMessage,
     sendVoucher,
-  } = useSupportChat();
+  } = useSupportChat()
 
   const selectedConv = React.useMemo(
     () => conversations.find((c) => c.id === selectedConversationId) ?? null,
-    [conversations, selectedConversationId]
-  );
+    [conversations, selectedConversationId],
+  )
 
-  const [search, setSearch] = React.useState("");
-  const [input, setInput] = React.useState("");
-  const [drawerOpen, setDrawerOpen] = React.useState(false);
-  const threadRef = React.useRef<HTMLDivElement | null>(null);
+  const [search, setSearch] = React.useState("")
+  const [input, setInput] = React.useState("")
+  const [drawerOpen, setDrawerOpen] = React.useState(false)
+  const threadRef = React.useRef<HTMLDivElement | null>(null)
 
   const filteredConversations = React.useMemo(() => {
-    const s = search.trim().toLowerCase();
-    if (!s) return conversations;
-    return conversations.filter((c) => c.title.toLowerCase().includes(s) || c.preview.toLowerCase().includes(s));
-  }, [conversations, search]);
+    const s = search.trim().toLowerCase()
+    if (!s) return conversations
+    return conversations.filter(
+      (c) => c.title.toLowerCase().includes(s) || c.preview.toLowerCase().includes(s),
+    )
+  }, [conversations, search])
 
   const messages = React.useMemo(() => {
-    if (!selectedConversationId) return [];
-    return messagesByConversationId[selectedConversationId] ?? [];
-  }, [messagesByConversationId, selectedConversationId]);
+    if (!selectedConversationId) return []
+    return messagesByConversationId[selectedConversationId] ?? []
+  }, [messagesByConversationId, selectedConversationId])
 
   const threadMessages = React.useMemo(() => {
-    if (!staffMessagesOnly) return messages;
+    const role = resolveUserRole(user as unknown as Record<string, unknown> | null)
+    if (!staffMessagesOnly) return messages
     return messages.filter((m) => {
-      if (m.senderRoleId === STAFF_ROLE_ID) return true;
-      if (m.direction === "outgoing" && resolveUserRole(user as unknown as Record<string, unknown>) === "staff") return true;
-      return false;
-    });
-  }, [messages, staffMessagesOnly, user?.role]);
+      if (m.senderRoleId === STAFF_ROLE_ID) return true
+      if (m.direction === "outgoing" && role === "staff") return true
+      return false
+    })
+  }, [messages, staffMessagesOnly, user])
 
-  const depKey = `${selectedConversationId ?? "none"}:${threadMessages.length}`;
+  const depKey = `${selectedConversationId ?? "none"}:${threadMessages.length}`
 
   const onSend = React.useCallback(() => {
-    const text = input.trim();
-    if (!text) return;
+    const text = input.trim()
+    if (!text) return
     // Structured voucher send (compatible with plain text UI):
     // `/voucher CODE optional message...`
     if (text.toLowerCase().startsWith("/voucher ")) {
-      const rest = text.slice("/voucher ".length).trim();
-      const [code, ...msgParts] = rest.split(/\s+/).filter(Boolean);
+      const rest = text.slice("/voucher ".length).trim()
+      const [code, ...msgParts] = rest.split(/\s+/).filter(Boolean)
       if (code) {
-        sendVoucher({ code, message: msgParts.join(" ") });
-        setInput("");
-        return;
+        sendVoucher({ code, message: msgParts.join(" ") })
+        setInput("")
+        return
       }
     }
 
-    sendTextMessage({ conversationId: selectedConversationId ?? undefined, text });
-    setInput("");
-  }, [input, selectedConversationId, sendTextMessage, sendVoucher]);
+    sendTextMessage({ conversationId: selectedConversationId ?? undefined, text })
+    setInput("")
+  }, [input, selectedConversationId, sendTextMessage, sendVoucher])
 
   const onKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter" && !e.shiftKey) {
-      e.preventDefault();
-      onSend();
+      e.preventDefault()
+      onSend()
     }
-  };
+  }
 
   const conversationsPanel = (
     <div className="flex h-full min-h-0 flex-col">
@@ -240,7 +235,12 @@ export const SupportChat = () => {
         </div>
         <div className="relative">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-          <Input placeholder="Search" value={search} onChange={(e) => setSearch(e.target.value)} className="pl-9" />
+          <Input
+            placeholder="Search"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="pl-9"
+          />
         </div>
         <Button type="primary" onClick={contactSupport}>
           Contact support
@@ -262,8 +262,8 @@ export const SupportChat = () => {
                 selected={selectedConversationId === conv.id}
                 unread={unreadByConversationId[conv.id] ?? conv.unread}
                 onClick={() => {
-                  setDrawerOpen(false);
-                  void selectConversation(conv.id);
+                  setDrawerOpen(false)
+                  void selectConversation(conv.id)
                 }}
               />
             ))}
@@ -271,7 +271,7 @@ export const SupportChat = () => {
         )}
       </div>
     </div>
-  );
+  )
 
   return (
     <div className="flex h-svh w-full min-w-0 overflow-hidden bg-background">
@@ -285,22 +285,14 @@ export const SupportChat = () => {
         >
           <div className="h-full border-r border-border/50 bg-muted/30">{conversationsPanel}</div>
         </Drawer>
-      ) : (
-        <aside className="flex h-full w-[320px] min-w-[280px] max-w-[420px] shrink-0 flex-col border-r border-border/50 bg-muted/30">
-          {conversationsPanel}
-        </aside>
-      )}
+      ) : null}
 
       <main className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
         <div className="flex shrink-0 items-center justify-between gap-2 border-b border-border/50 px-3 py-2.5">
           <div className="min-w-0">
             <div className="flex min-w-0 items-center gap-2">
               {isMobile && (
-                <Button
-                  size="small"
-                  className="mr-1 shrink-0"
-                  onClick={() => setDrawerOpen(true)}
-                >
+                <Button size="small" className="mr-1 shrink-0" onClick={() => setDrawerOpen(true)}>
                   Conversations
                 </Button>
               )}
@@ -353,6 +345,5 @@ export const SupportChat = () => {
         </div>
       </main>
     </div>
-  );
-};
-
+  )
+}

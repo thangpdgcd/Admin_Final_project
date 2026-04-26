@@ -17,4 +17,3 @@ export const computeVoucherStatus = (v: PromoVoucher) => {
   if (Number.isFinite(start) && start > now) return "scheduled"
   return "active"
 }
-

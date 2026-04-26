@@ -1,9 +1,6 @@
 "use client"
 
-import {
-  Card,
-  Typography,
-} from "antd"
+import { Card, Typography } from "antd"
 import { ProductList, type Product } from "./ProductList"
 
 const mockProducts: Product[] = [
@@ -69,11 +66,13 @@ const mockProducts: Product[] = [
   },
 ]
 
-export function TopProducts() {
+export const TopProducts = () => {
   return (
     <Card className="rounded-xl border border-border/50 bg-card/95 shadow-sm backdrop-blur-sm">
       <div className="space-y-1">
-        <Typography.Title level={5} className="mb-0!">Top Products</Typography.Title>
+        <Typography.Title level={5} className="mb-0!">
+          Top Products
+        </Typography.Title>
         <Typography.Text type="secondary">Best selling products by revenue</Typography.Text>
       </div>
       <div className="mt-4">

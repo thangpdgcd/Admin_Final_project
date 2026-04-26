@@ -56,8 +56,10 @@ const mockMessagesByConversation: Record<string, ChatMessage[]> = {
   "5": [],
 }
 
-export function useChat(conversationId: string | null) {
-  const [localMessagesByConversation, setLocalMessagesByConversation] = useState<Record<string, ChatMessage[]>>({})
+export const useChat = (conversationId: string | null) => {
+  const [localMessagesByConversation, setLocalMessagesByConversation] = useState<
+    Record<string, ChatMessage[]>
+  >({})
   const [loading] = useState(false)
 
   const normalizedConversationId = conversationId ? String(conversationId) : null
@@ -90,7 +92,7 @@ export function useChat(conversationId: string | null) {
         [normalizedConversationId]: [...(prev[normalizedConversationId] ?? []), newMsg],
       }))
     },
-    [normalizedConversationId]
+    [normalizedConversationId],
   )
 
   return {

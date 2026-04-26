@@ -1,6 +1,6 @@
 "use client"
 
-import { cn } from "@/lib/utils"
+import { cn } from "@/utils/utils"
 import { Avatar, Tag } from "antd"
 
 export type TransactionStatus = "completed" | "pending" | "failed"
@@ -20,7 +20,7 @@ const statusColor: Record<TransactionStatus, string> = {
   failed: "red",
 }
 
-function getInitials(name: string): string {
+const getInitials = (name: string): string => {
   return name
     .split(" ")
     .map((n) => n[0])
@@ -34,7 +34,7 @@ export interface TransactionListProps {
   className?: string
 }
 
-export function TransactionList({ transactions, className }: TransactionListProps) {
+export const TransactionList = ({ transactions, className }: TransactionListProps) => {
   return (
     <div className={cn("space-y-4", className)}>
       {transactions.map((tx) => (
@@ -43,18 +43,20 @@ export function TransactionList({ transactions, className }: TransactionListProp
           className="flex items-center justify-between gap-4 rounded-lg border border-border/50 px-4 py-3 transition-colors hover:bg-muted/50"
         >
           <div className="flex items-center gap-4 min-w-0">
-            <Avatar size={36} className="shrink-0">{getInitials(tx.userName)}</Avatar>
+            <Avatar size={36} className="shrink-0">
+              {getInitials(tx.userName)}
+            </Avatar>
             <div className="min-w-0">
               <p className="font-medium truncate">{tx.userName}</p>
               <p className="text-xs text-muted-foreground truncate">{tx.email}</p>
             </div>
           </div>
           <div className="flex items-center gap-4 shrink-0">
-            <Tag color={statusColor[tx.status]} className="capitalize">{tx.status}</Tag>
+            <Tag color={statusColor[tx.status]} className="capitalize">
+              {tx.status}
+            </Tag>
             <span className="font-medium tabular-nums">{tx.amount}</span>
-            <span className="text-sm text-muted-foreground whitespace-nowrap">
-              {tx.time}
-            </span>
+            <span className="text-sm text-muted-foreground whitespace-nowrap">{tx.time}</span>
           </div>
         </div>
       ))}

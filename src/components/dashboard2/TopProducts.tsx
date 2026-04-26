@@ -67,11 +67,13 @@ const mockProducts: Product[] = [
   },
 ]
 
-export function TopProducts() {
+export const TopProducts = () => {
   return (
     <Card className="rounded-xl border border-border/50 shadow-sm">
       <div className="space-y-1">
-        <Typography.Title level={5} className="mb-0!">Top Products</Typography.Title>
+        <Typography.Title level={5} className="mb-0!">
+          Top Products
+        </Typography.Title>
         <Typography.Text type="secondary">Best performing products by revenue</Typography.Text>
       </div>
       <div className="mt-4">

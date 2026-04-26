@@ -1,2 +1,2 @@
-export * from "./hooks/useNotifications";
-export * from "./components/NotificationBell";
+export * from "./hooks/useNotifications"
+export * from "./components/NotificationBell"

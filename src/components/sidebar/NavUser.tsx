@@ -3,14 +3,16 @@
 import { LogOut, User } from "lucide-react"
 import { Link } from "react-router-dom"
 import { Button, Dropdown } from "antd"
+import { useTranslation } from "react-i18next"
 
-export function NavUser({
+export const NavUser = ({
   user,
   onLogout,
 }: {
   user?: { name?: string; email?: string; avatar?: string | null } | null
   onLogout: () => void
-}) {
+}) => {
+  const { t } = useTranslation()
   const name = user?.name?.trim() || "User"
   const email = user?.email?.trim() || "No email"
   const initials = name
@@ -31,7 +33,7 @@ export function NavUser({
             label: (
               <Link to="/system/profile" className="flex items-center gap-2">
                 <User className="h-4 w-4" />
-                Profile
+                {t("header.profile")}
               </Link>
             ),
           },
@@ -41,7 +43,7 @@ export function NavUser({
             label: (
               <span className="flex items-center gap-2">
                 <LogOut className="h-4 w-4" />
-                Log out
+                {t("header.logout")}
               </span>
             ),
             onClick: onLogout,

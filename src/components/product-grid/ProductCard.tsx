@@ -1,49 +1,49 @@
-import { memo, useCallback, useRef } from "react";
-import { motion } from "framer-motion";
-import { ShoppingBag } from "lucide-react";
-import { useCartUiStore } from "@/store/cartUiStore";
-import { ProductBadge } from "./ProductBadge";
+import { memo, useCallback, useRef } from "react"
+import { motion } from "framer-motion"
+import { ShoppingBag } from "lucide-react"
+import { useCartUiStore } from "@/store/cartUiStore"
+import { ProductBadge } from "./ProductBadge"
 
 interface ProductCardProps {
-  id: string;
-  name: string;
-  categoryName: string;
-  price: number;
-  imageUrl?: string;
+  id: string
+  name: string
+  categoryName: string
+  price: number
+  imageUrl?: string
 }
 
-function getProductBadgeType(name: string, price: number): "bestSeller" | "new" | null {
+const getProductBadgeType = (name: string, price: number): "bestSeller" | "new" | null => {
   if (name.trim().toLowerCase() === "butter croissant") {
-    return "new";
+    return "new"
   }
   if (price > 35000) {
-    return "bestSeller";
+    return "bestSeller"
   }
-  return null;
+  return null
 }
 
-function animateFlyToCart(imageEl: HTMLImageElement | null, targetEl: HTMLElement | null) {
-  if (!imageEl || !targetEl) return;
+const animateFlyToCart = (imageEl: HTMLImageElement | null, targetEl: HTMLElement | null) => {
+  if (!imageEl || !targetEl) return
 
-  const from = imageEl.getBoundingClientRect();
-  const to = targetEl.getBoundingClientRect();
-  const clone = imageEl.cloneNode(true) as HTMLImageElement;
+  const from = imageEl.getBoundingClientRect()
+  const to = targetEl.getBoundingClientRect()
+  const clone = imageEl.cloneNode(true) as HTMLImageElement
 
-  clone.style.position = "fixed";
-  clone.style.left = `${from.left}px`;
-  clone.style.top = `${from.top}px`;
-  clone.style.width = `${from.width}px`;
-  clone.style.height = `${from.height}px`;
-  clone.style.borderRadius = "14px";
-  clone.style.pointerEvents = "none";
-  clone.style.zIndex = "9999";
-  clone.style.objectFit = "cover";
-  clone.style.willChange = "transform, opacity";
+  clone.style.position = "fixed"
+  clone.style.left = `${from.left}px`
+  clone.style.top = `${from.top}px`
+  clone.style.width = `${from.width}px`
+  clone.style.height = `${from.height}px`
+  clone.style.borderRadius = "14px"
+  clone.style.pointerEvents = "none"
+  clone.style.zIndex = "9999"
+  clone.style.objectFit = "cover"
+  clone.style.willChange = "transform, opacity"
 
-  document.body.appendChild(clone);
+  document.body.appendChild(clone)
 
-  const deltaX = to.left + to.width / 2 - (from.left + from.width / 2);
-  const deltaY = to.top + to.height / 2 - (from.top + from.height / 2);
+  const deltaX = to.left + to.width / 2 - (from.left + from.width / 2)
+  const deltaY = to.top + to.height / 2 - (from.top + from.height / 2)
 
   const animation = clone.animate(
     [
@@ -53,30 +53,24 @@ function animateFlyToCart(imageEl: HTMLImageElement | null, targetEl: HTMLElemen
     {
       duration: 600,
       easing: "cubic-bezier(0.2, 0.8, 0.2, 1)",
-    }
-  );
+    },
+  )
 
   animation.onfinish = () => {
-    clone.remove();
-  };
+    clone.remove()
+  }
 }
 
-export const ProductCard = memo(function ProductCard({
-  id,
-  name,
-  categoryName,
-  price,
-  imageUrl,
-}: ProductCardProps) {
-  const imageRef = useRef<HTMLImageElement | null>(null);
-  const addOne = useCartUiStore((state) => state.addOne);
-  const badgeType = getProductBadgeType(name, price);
+export const ProductCard = memo(({ id, name, categoryName, price, imageUrl }: ProductCardProps) => {
+  const imageRef = useRef<HTMLImageElement | null>(null)
+  const addOne = useCartUiStore((state) => state.addOne)
+  const badgeType = getProductBadgeType(name, price)
 
   const handleAddToCart = useCallback(() => {
-    const cartTarget = document.getElementById("header-cart-target");
-    animateFlyToCart(imageRef.current, cartTarget);
-    addOne();
-  }, [addOne]);
+    const cartTarget = document.getElementById("header-cart-target")
+    animateFlyToCart(imageRef.current, cartTarget)
+    addOne()
+  }, [addOne])
 
   return (
     <motion.article
@@ -102,8 +96,13 @@ export const ProductCard = memo(function ProductCard({
       </div>
 
       <div className="mt-4 space-y-1">
-        <p className="text-xs uppercase tracking-wide text-stone-500 dark:text-stone-400">{categoryName || "Uncategorized"}</p>
-        <h3 className="line-clamp-2 text-lg text-stone-800 dark:text-stone-200" style={{ fontFamily: "ui-serif, Georgia, Cambria, serif" }}>
+        <p className="text-xs uppercase tracking-wide text-stone-500 dark:text-stone-400">
+          {categoryName || "Uncategorized"}
+        </p>
+        <h3
+          className="line-clamp-2 text-lg text-stone-800 dark:text-stone-200"
+          style={{ fontFamily: "ui-serif, Georgia, Cambria, serif" }}
+        >
           {name}
         </h3>
       </div>
@@ -127,5 +126,5 @@ export const ProductCard = memo(function ProductCard({
         </motion.button>
       </div>
     </motion.article>
-  );
-});
+  )
+})

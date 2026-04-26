@@ -1,7 +1,14 @@
 "use client"
 
 import * as React from "react"
-import { Area, AreaChart, CartesianGrid, Tooltip as RechartsTooltip, XAxis, ResponsiveContainer } from "recharts"
+import {
+  Area,
+  AreaChart,
+  CartesianGrid,
+  Tooltip as RechartsTooltip,
+  XAxis,
+  ResponsiveContainer,
+} from "recharts"
 
 import { useIsMobile } from "@/hooks/use-mobile"
 import { Button, Card, Select, Typography } from "antd"
@@ -25,7 +32,7 @@ const chartData = [
 const formatVnd = (n: number) =>
   new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND", maximumFractionDigits: 0 }).format(n)
 
-export function SalesChart() {
+export const SalesChart = () => {
   const isMobile = useIsMobile()
   const [range, setRange] = React.useState("12m")
 
@@ -38,7 +45,9 @@ export function SalesChart() {
     <Card className="rounded-xl border border-border/50 shadow-sm">
       <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <Typography.Title level={5} className="mb-0!">Sales Performance</Typography.Title>
+          <Typography.Title level={5} className="mb-0!">
+            Sales Performance
+          </Typography.Title>
           <Typography.Text type="secondary">Monthly sales vs targets</Typography.Text>
         </div>
         <div className="flex items-center gap-2">
@@ -63,9 +72,7 @@ export function SalesChart() {
           <AreaChart
             data={filteredData}
             margin={
-              isMobile
-                ? { top: 8, right: 8, bottom: 8, left: 8 }
-                : { top: 8, right: 16, bottom: 8, left: 16 }
+              isMobile ? { top: 8, right: 8, bottom: 8, left: 8 } : { top: 8, right: 16, bottom: 8, left: 16 }
             }
           >
             <CartesianGrid strokeDasharray="3 3" vertical={false} />

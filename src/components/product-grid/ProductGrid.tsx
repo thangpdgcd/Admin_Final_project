@@ -1,22 +1,22 @@
-import { memo, useEffect, useMemo, useState } from "react";
-import { AnimatePresence, motion } from "framer-motion";
-import { Coffee, Search, Sparkles } from "lucide-react";
-import { useProducts } from "@/hooks/useProducts";
-import { ProductCard } from "./ProductCard";
-import { SkeletonCard } from "./SkeletonCard";
-import { cn } from "@/lib/utils";
+import { memo, useEffect, useMemo, useState } from "react"
+import { AnimatePresence, motion } from "framer-motion"
+import { Coffee, Search, Sparkles } from "lucide-react"
+import { useProducts } from "@/hooks/useProducts"
+import { ProductCard } from "./ProductCard"
+import { SkeletonCard } from "./SkeletonCard"
+import { cn } from "@/utils/utils"
 
-const PREFERRED_CATEGORIES = ["Coffee", "Tea", "Bakery"] as const;
+const PREFERRED_CATEGORIES = ["Coffee", "Tea", "Bakery"] as const
 
-function useDebouncedValue<T>(value: T, delayMs: number): T {
-  const [debounced, setDebounced] = useState(value);
+const useDebouncedValue = <T,>(value: T, delayMs: number): T => {
+  const [debounced, setDebounced] = useState(value)
 
   useEffect(() => {
-    const timer = window.setTimeout(() => setDebounced(value), delayMs);
-    return () => window.clearTimeout(timer);
-  }, [value, delayMs]);
+    const timer = window.setTimeout(() => setDebounced(value), delayMs)
+    return () => window.clearTimeout(timer)
+  }, [value, delayMs])
 
-  return debounced;
+  return debounced
 }
 
 const listVariants = {
@@ -27,50 +27,51 @@ const listVariants = {
       staggerChildren: 0.08,
     },
   },
-};
+}
 
 const itemVariants = {
   hidden: { opacity: 0, y: 30 },
   show: { opacity: 1, y: 0, transition: { duration: 0.35 } },
-};
+}
 
-export const ProductGrid = memo(function ProductGrid() {
-  const { loading, products, fetchProducts } = useProducts();
-  const [searchTerm, setSearchTerm] = useState("");
-  const [activeCategory, setActiveCategory] = useState<string>("All");
-  const debouncedSearch = useDebouncedValue(searchTerm, 300);
+export const ProductGrid = memo(() => {
+  const { loading, products, fetchProducts } = useProducts()
+  const [searchTerm, setSearchTerm] = useState("")
+  const [activeCategory, setActiveCategory] = useState<string>("All")
+  const debouncedSearch = useDebouncedValue(searchTerm, 300)
 
   useEffect(() => {
-    fetchProducts({ page: 1, limit: 200 }).catch(() => undefined);
-  }, [fetchProducts]);
+    fetchProducts({ page: 1, limit: 200 }).catch(() => undefined)
+  }, [fetchProducts])
 
   const availableCategories = useMemo(() => {
     const normalized = new Set(
       products
         .map((item) => item.categoryName?.trim())
         .filter(Boolean)
-        .map((value) => String(value))
-    );
+        .map((value) => String(value)),
+    )
 
-    const preferred = PREFERRED_CATEGORIES.filter((item) => normalized.has(item));
-    const rest = Array.from(normalized).filter((item) => !PREFERRED_CATEGORIES.includes(item as (typeof PREFERRED_CATEGORIES)[number]));
-    return ["All", ...preferred, ...rest];
-  }, [products]);
+    const preferred = PREFERRED_CATEGORIES.filter((item) => normalized.has(item))
+    const rest = Array.from(normalized).filter(
+      (item) => !PREFERRED_CATEGORIES.includes(item as (typeof PREFERRED_CATEGORIES)[number]),
+    )
+    return ["All", ...preferred, ...rest]
+  }, [products])
 
   const filteredProducts = useMemo(() => {
-    const search = debouncedSearch.trim().toLowerCase();
+    const search = debouncedSearch.trim().toLowerCase()
     return products.filter((product) => {
-      const byCategory = activeCategory === "All" || product.categoryName === activeCategory;
-      if (!byCategory) return false;
-      if (!search) return true;
+      const byCategory = activeCategory === "All" || product.categoryName === activeCategory
+      if (!byCategory) return false
+      if (!search) return true
       return (
-        product.name.toLowerCase().includes(search) ||
-        product.categoryName.toLowerCase().includes(search)
-      );
-    });
-  }, [products, activeCategory, debouncedSearch]);
+        product.name.toLowerCase().includes(search) || product.categoryName.toLowerCase().includes(search)
+      )
+    })
+  }, [products, activeCategory, debouncedSearch])
 
-  const filterKey = `${activeCategory}-${debouncedSearch}`;
+  const filterKey = `${activeCategory}-${debouncedSearch}`
 
   return (
     <section className="min-h-full bg-[#f8f7f4] p-4 dark:bg-[#121212] md:p-6">
@@ -81,7 +82,10 @@ export const ProductGrid = memo(function ProductGrid() {
         className="mx-auto max-w-7xl space-y-6"
       >
         <div className="space-y-2">
-          <h2 className="text-3xl text-stone-800 dark:text-stone-100" style={{ fontFamily: "ui-serif, Georgia, Cambria, serif" }}>
+          <h2
+            className="text-3xl text-stone-800 dark:text-stone-100"
+            style={{ fontFamily: "ui-serif, Georgia, Cambria, serif" }}
+          >
             Curated Menu
           </h2>
           <p className="text-sm text-stone-500 dark:text-stone-400">
@@ -109,7 +113,7 @@ export const ProductGrid = memo(function ProductGrid() {
                   "rounded-full px-4 py-2 text-sm transition duration-300",
                   activeCategory === category
                     ? "bg-orange-200 text-orange-900 dark:bg-orange-900/50 dark:text-orange-200"
-                    : "bg-stone-100 text-stone-700 hover:bg-stone-200 dark:bg-stone-800 dark:text-stone-300 dark:hover:bg-stone-700"
+                    : "bg-stone-100 text-stone-700 hover:bg-stone-200 dark:bg-stone-800 dark:text-stone-300 dark:hover:bg-stone-700",
                 )}
               >
                 {category}
@@ -159,8 +163,8 @@ export const ProductGrid = memo(function ProductGrid() {
             <button
               type="button"
               onClick={() => {
-                setSearchTerm("");
-                setActiveCategory("All");
+                setSearchTerm("")
+                setActiveCategory("All")
               }}
               className="mt-4 inline-flex items-center gap-2 rounded-full bg-orange-100 px-4 py-2 text-sm text-orange-800 transition hover:bg-orange-200 dark:bg-orange-900/40 dark:text-orange-200 dark:hover:bg-orange-900/60"
             >
@@ -171,5 +175,5 @@ export const ProductGrid = memo(function ProductGrid() {
         ) : null}
       </motion.div>
     </section>
-  );
-});
+  )
+})

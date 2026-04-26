@@ -1,9 +1,9 @@
-import { BrowserRouter } from "react-router-dom";
-import { ThemeProvider } from "next-themes";
-import { Toaster } from "@/components/ui/sonner";
-import { AuthProvider } from "@/context/AuthContext";
-import { AppRoutes } from "@/routes/AppRoutes";
-import { AntdProvider } from "@/providers/AntdProvider";
+import { BrowserRouter } from "react-router-dom"
+import { ThemeProvider } from "next-themes"
+import { Toaster } from "@/components/ui/sonner"
+import { AuthProvider } from "@/components/context/AuthContext"
+import { AppRoutes } from "@/routes/AppRoutes"
+import { AntdProvider } from "@/app/providers/AntdProvider"
 
 export const App = () => {
   return (
@@ -19,6 +19,5 @@ export const App = () => {
         </ThemeProvider>
       </AuthProvider>
     </BrowserRouter>
-  );
-};
-
+  )
+}

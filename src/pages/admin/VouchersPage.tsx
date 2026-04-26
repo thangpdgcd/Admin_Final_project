@@ -9,10 +9,12 @@ import { voucherService, type PromoVoucher } from "@/services/voucher.service"
 import { toast } from "sonner"
 import { VoucherFormModal } from "@/components/vouchers/VoucherFormModal"
 import { computeVoucherStatus, formatVoucherWindow } from "@/utils/vouchers"
+import { useTranslation } from "react-i18next"
 
 type Filter = "all" | "active" | "expired" | "inactive"
 
 export const VouchersPage = () => {
+  const { t } = useTranslation()
   const screens = Grid.useBreakpoint()
   const isMobile = !screens.md
   const [q, setQ] = React.useState("")
@@ -55,7 +57,7 @@ export const VouchersPage = () => {
   const onDelete = async (row: PromoVoucher) => {
     try {
       await voucherService.softDeleteAdmin(row.id)
-      toast.success("Voucher deactivated")
+      toast.success(t("vouchers.deactivated"))
       void fetchList()
     } catch (e) {
       toast.error((e as { message?: string })?.message ?? "Delete failed")
@@ -65,13 +67,13 @@ export const VouchersPage = () => {
   return (
     <Page>
       <Section
-        title="Vouchers"
-        description="Create and manage discount vouchers for customers."
+        title={t("vouchers.title")}
+        description={t("vouchers.subtitle")}
         actions={
           <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
             <Button type="primary" onClick={openCreate} className="gap-2">
               <Plus className="h-4 w-4" />
-              New voucher
+              {t("vouchers.new")}
             </Button>
           </motion.div>
         }
@@ -84,7 +86,7 @@ export const VouchersPage = () => {
                 setPage(1)
                 setQ(e.target.value)
               }}
-              placeholder="Search by code…"
+              placeholder={t("vouchers.searchPlaceholder")}
             />
           </div>
           <Segmented
@@ -107,66 +109,64 @@ export const VouchersPage = () => {
             <div className="rounded-xl border border-border bg-card p-4">
               <Skeleton active paragraph={{ rows: 4 }} />
             </div>
-          ) : (
-            isMobile ? (
-              items.length === 0 ? (
-                <div className="rounded-xl border border-border bg-card p-8 text-center text-sm text-muted-foreground">
-                  No vouchers.
-                </div>
-              ) : (
-                <div className="space-y-3">
-                  {items.map((v) => {
-                    const status = computeVoucherStatus(v)
-                    const usedPct = v.quantity > 0 ? Math.min(100, (v.usedCount / v.quantity) * 100) : 0
-                    const statusColor =
-                      status === "active"
-                        ? "green"
-                        : status === "scheduled"
-                          ? "blue"
-                          : status === "exhausted"
-                            ? "gold"
-                            : status === "expired"
-                              ? "red"
-                              : "default"
-                    return (
-                      <Card key={v.id} size="small" className="rounded-xl border border-border/50">
-                        <div className="flex items-start justify-between gap-3">
-                          <div className="min-w-0">
-                            <code className="rounded bg-muted px-2 py-1 text-xs font-semibold">{v.code}</code>
-                            <div className="mt-2 text-sm text-muted-foreground">
-                              {v.discountType === "percentage" ? `${v.discountValue}%` : `${v.discountValue}`}
-                            </div>
-                            <div className="mt-1 text-xs text-muted-foreground">{formatVoucherWindow(v)}</div>
-                          </div>
-                          <Tag color={statusColor}>{status}</Tag>
-                        </div>
-
-                        <div className="mt-3 space-y-1">
-                          <div className="flex items-center justify-between text-xs text-muted-foreground">
-                            <span>
-                              {v.usedCount}/{v.quantity}
-                            </span>
-                            <span>{Math.round(usedPct)}%</span>
-                          </div>
-                          <Progress percent={usedPct} showInfo={false} />
-                        </div>
-
-                        <div className="mt-3 flex flex-wrap items-center gap-2">
-                          <Button size="small" onClick={() => openEdit(v)}>
-                            Edit
-                          </Button>
-                          <Button danger size="small" onClick={() => onDelete(v)}>
-                            Deactivate
-                          </Button>
-                        </div>
-                      </Card>
-                    )
-                  })}
-                </div>
-              )
+          ) : isMobile ? (
+            items.length === 0 ? (
+              <div className="rounded-xl border border-border bg-card p-8 text-center text-sm text-muted-foreground">
+                {t("common.noData")}
+              </div>
             ) : (
-              <VoucherTable items={items} onEdit={openEdit} onDelete={onDelete} />
+              <div className="space-y-3">
+                {items.map((v) => {
+                  const status = computeVoucherStatus(v)
+                  const usedPct = v.quantity > 0 ? Math.min(100, (v.usedCount / v.quantity) * 100) : 0
+                  const statusColor =
+                    status === "active"
+                      ? "green"
+                      : status === "scheduled"
+                        ? "blue"
+                        : status === "exhausted"
+                          ? "gold"
+                          : status === "expired"
+                            ? "red"
+                            : "default"
+                  return (
+                    <Card key={v.id} size="small" className="rounded-xl border border-border/50">
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="min-w-0">
+                          <code className="rounded bg-muted px-2 py-1 text-xs font-semibold">{v.code}</code>
+                          <div className="mt-2 text-sm text-muted-foreground">
+                            {v.discountType === "percentage" ? `${v.discountValue}%` : `${v.discountValue}`}
+                          </div>
+                          <div className="mt-1 text-xs text-muted-foreground">{formatVoucherWindow(v)}</div>
+                        </div>
+                        <Tag color={statusColor}>{status}</Tag>
+                      </div>
+
+                      <div className="mt-3 space-y-1">
+                        <div className="flex items-center justify-between text-xs text-muted-foreground">
+                          <span>
+                            {v.usedCount}/{v.quantity}
+                          </span>
+                          <span>{Math.round(usedPct)}%</span>
+                        </div>
+                        <Progress percent={usedPct} showInfo={false} />
+                      </div>
+
+                      <div className="mt-3 flex flex-wrap items-center gap-2">
+                        <Button size="small" onClick={() => openEdit(v)}>
+                          Edit
+                        </Button>
+                        <Button danger size="small" onClick={() => onDelete(v)}>
+                          Deactivate
+                        </Button>
+                      </div>
+                    </Card>
+                  )
+                })}
+              </div>
             )
+          ) : (
+            <VoucherTable items={items} onEdit={openEdit} onDelete={onDelete} />
           )}
         </div>
 
@@ -196,4 +196,3 @@ export const VouchersPage = () => {
     </Page>
   )
 }
-

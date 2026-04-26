@@ -1,6 +1,6 @@
-import { Badge, Button, Card, Divider, Typography } from "antd";
+import { Badge, Button, Card, Divider, Typography } from "antd"
 
-export function ConnectionsPage() {
+export const ConnectionsPage = () => {
   return (
     <div className="space-y-6">
       <div className="space-y-1">
@@ -27,9 +27,7 @@ export function ConnectionsPage() {
             </div>
             <div className="flex items-center gap-2">
               <Badge>Configured in backend</Badge>
-              <Button size="small">
-                View docs
-              </Button>
+              <Button size="small">View docs</Button>
             </div>
           </div>
           <div className="flex items-center justify-between gap-3 rounded-lg border border-border/60 bg-muted/40 p-3">
@@ -39,9 +37,7 @@ export function ConnectionsPage() {
                 Configure email sender details via environment variables.
               </p>
             </div>
-            <Button size="small">
-              Configure
-            </Button>
+            <Button size="small">Configure</Button>
           </div>
           <Divider className="my-2" />
           <div className="space-y-1">
@@ -53,6 +49,5 @@ export function ConnectionsPage() {
         </div>
       </Card>
     </div>
-  );
+  )
 }
-

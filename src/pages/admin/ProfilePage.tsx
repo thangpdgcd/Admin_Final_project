@@ -1,74 +1,76 @@
-import * as React from "react";
-import { Avatar, Button, Card, Input, Typography } from "antd";
-import { useAuth } from "@/hooks/useAuth";
-import { authService } from "@/services/auth.service";
-import { getErrorMessage } from "@/lib/errorUtils";
-import { toast } from "sonner";
+import * as React from "react"
+import { Avatar, Button, Card, Input, Typography } from "antd"
+import { useAuth } from "@/hooks/useAuth"
+import { authService } from "@/services/auth.service"
+import { getErrorMessage } from "@/utils/errorUtils"
+import { toast } from "sonner"
+import { useTranslation } from "react-i18next"
 
-function initials(name?: string): string {
+const initials = (name?: string): string => {
   return (name || "Admin")
     .split(" ")
     .map((part) => part[0] || "")
     .join("")
     .slice(0, 2)
-    .toUpperCase();
+    .toUpperCase()
 }
 
-export function ProfilePage() {
-  const { user, logout, updateUser } = useAuth();
-  const [name, setName] = React.useState(user?.name || "");
-  const [avatar, setAvatar] = React.useState(user?.avatar || "");
-  const [oldPassword, setOldPassword] = React.useState("");
-  const [newPassword, setNewPassword] = React.useState("");
-  const [confirmPassword, setConfirmPassword] = React.useState("");
-  const [savingProfile, setSavingProfile] = React.useState(false);
-  const [savingPassword, setSavingPassword] = React.useState(false);
+export const ProfilePage = () => {
+  const { user, logout, updateUser } = useAuth()
+  const { t } = useTranslation()
+  const [name, setName] = React.useState(user?.name || "")
+  const [avatar, setAvatar] = React.useState(user?.avatar || "")
+  const [oldPassword, setOldPassword] = React.useState("")
+  const [newPassword, setNewPassword] = React.useState("")
+  const [confirmPassword, setConfirmPassword] = React.useState("")
+  const [savingProfile, setSavingProfile] = React.useState(false)
+  const [savingPassword, setSavingPassword] = React.useState(false)
 
   const onProfileSubmit = async (event: React.FormEvent) => {
-    event.preventDefault();
+    event.preventDefault()
     if (!name.trim()) {
-      toast.error("Name is required");
-      return;
+      toast.error("Name is required")
+      return
     }
-    setSavingProfile(true);
+    setSavingProfile(true)
     try {
-      const updated = await authService.updateProfile({ name: name.trim(), avatar });
-      updateUser(updated);
-      toast.success("Profile updated");
+      const updated = await authService.updateProfile({ name: name.trim(), avatar })
+      updateUser(updated)
+      toast.success("Profile updated")
     } catch (err) {
-      toast.error(getErrorMessage(err));
+      toast.error(getErrorMessage(err))
     } finally {
-      setSavingProfile(false);
+      setSavingProfile(false)
     }
-  };
+  }
 
   const onPasswordSubmit = async (event: React.FormEvent) => {
-    event.preventDefault();
+    event.preventDefault()
     if (!oldPassword || !newPassword || !confirmPassword) {
-      toast.error("All password fields are required");
-      return;
+      toast.error("All password fields are required")
+      return
     }
     if (newPassword.length < 6) {
-      toast.error("New password must be at least 6 characters");
-      return;
+      toast.error("New password must be at least 6 characters")
+      return
     }
     if (newPassword !== confirmPassword) {
-      toast.error("Password confirmation does not match");
-      return;
+      toast.error("Password confirmation does not match")
+      return
     }
-    setSavingPassword(true);
+    setSavingPassword(true)
     try {
-      await authService.changePassword({ oldPassword, newPassword });
-      toast.success("Password changed");
-      setOldPassword("");
-      setNewPassword("");
-      setConfirmPassword("");
+      await authService.changePassword({ oldPassword, newPassword })
+      toast.success("Password changed")
+      setOldPassword("")
+      setNewPassword("")
+      setConfirmPassword("")
     } catch (err) {
-      toast.error(getErrorMessage(err));
+      toast.error(getErrorMessage(err))
     } finally {
-      setSavingPassword(false);
+      setSavingPassword(false)
     }
-  };
+  }
 
   return (
     <div className="space-y-6">
@@ -83,7 +85,9 @@ export function ProfilePage() {
           <Typography.Text type="secondary">Current account details</Typography.Text>
         </div>
         <div className="mt-4 flex flex-col gap-4 sm:flex-row sm:items-center">
-          <Avatar size={64} src={user?.avatar ?? undefined}>{initials(user?.name)}</Avatar>
+          <Avatar size={64} src={user?.avatar ?? undefined}>
+            {initials(user?.name)}
+          </Avatar>
           <div className="space-y-1">
             <p className="font-medium">{user?.name || "Admin"}</p>
             <p className="text-sm text-muted-foreground">{user?.email || "No email"}</p>
@@ -128,11 +132,19 @@ export function ProfilePage() {
           <form className="space-y-4" onSubmit={onPasswordSubmit}>
             <div className="space-y-2">
               <Typography.Text strong>Old password</Typography.Text>
-              <Input.Password id="old-password" value={oldPassword} onChange={(event) => setOldPassword(event.target.value)} />
+              <Input.Password
+                id="old-password"
+                value={oldPassword}
+                onChange={(event) => setOldPassword(event.target.value)}
+              />
             </div>
             <div className="space-y-2">
               <Typography.Text strong>New password</Typography.Text>
-              <Input.Password id="new-password" value={newPassword} onChange={(event) => setNewPassword(event.target.value)} />
+              <Input.Password
+                id="new-password"
+                value={newPassword}
+                onChange={(event) => setNewPassword(event.target.value)}
+              />
             </div>
             <div className="space-y-2">
               <Typography.Text strong>Confirm password</Typography.Text>
@@ -155,10 +167,11 @@ export function ProfilePage() {
           <Typography.Text type="secondary">End your current session</Typography.Text>
         </div>
         <div className="mt-4">
-          <Button danger onClick={logout}>Logout</Button>
+          <Button danger onClick={logout}>
+            {t("header.logout")}
+          </Button>
         </div>
       </Card>
     </div>
-  );
+  )
 }
-

@@ -33,7 +33,7 @@ const cards = [
   },
 ]
 
-export function MetricCards() {
+export const MetricCards = () => {
   return (
     <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-4 min-w-0">
       {cards.map((card) => (

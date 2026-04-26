@@ -38,7 +38,8 @@ const schema = z
   .superRefine((v, ctx) => {
     const s = new Date(v.startDate).getTime()
     const e = new Date(v.endDate).getTime()
-    if (!Number.isFinite(s)) ctx.addIssue({ code: "custom", path: ["startDate"], message: "Invalid startDate" })
+    if (!Number.isFinite(s))
+      ctx.addIssue({ code: "custom", path: ["startDate"], message: "Invalid startDate" })
     if (!Number.isFinite(e)) ctx.addIssue({ code: "custom", path: ["endDate"], message: "Invalid endDate" })
     if (Number.isFinite(s) && Number.isFinite(e) && e <= s) {
       ctx.addIssue({ code: "custom", path: ["endDate"], message: "endDate must be after startDate" })
@@ -48,7 +49,11 @@ const schema = z
         ctx.addIssue({ code: "custom", path: ["discountValue"], message: "percentage must be <= 100" })
       }
       if (v.maxDiscountValue == null || !(v.maxDiscountValue > 0)) {
-        ctx.addIssue({ code: "custom", path: ["maxDiscountValue"], message: "maxDiscountValue is required for percentage" })
+        ctx.addIssue({
+          code: "custom",
+          path: ["maxDiscountValue"],
+          message: "maxDiscountValue is required for percentage",
+        })
       }
     }
     if (v.applicableUsers === "specific") {
@@ -57,7 +62,11 @@ const schema = z
         .map((x) => x.trim())
         .filter(Boolean)
       if (ids.length === 0) {
-        ctx.addIssue({ code: "custom", path: ["specificUsers"], message: "Provide at least one userId (comma-separated)" })
+        ctx.addIssue({
+          code: "custom",
+          path: ["specificUsers"],
+          message: "Provide at least one userId (comma-separated)",
+        })
       }
     }
   })
@@ -183,238 +192,255 @@ export const VoucherFormModal = ({
       width={860}
       destroyOnHidden
     >
-      <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.18 }}>
+      <motion.div
+        initial={{ opacity: 0, y: 8 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.18 }}
+      >
         <form onSubmit={form.handleSubmit(submit)} className="mt-4 space-y-4">
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-              <div className="space-y-1.5">
-                <Typography.Text strong>Code</Typography.Text>
-                <Controller
-                  name="code"
-                  control={form.control}
-                  render={({ field, fieldState }) => (
-                    <>
-                      <Input
-                        id="code"
-                        placeholder="SUMMER2026"
-                        value={field.value ?? ""}
-                        onChange={(e) => field.onChange(e.target.value)}
-                        onBlur={field.onBlur}
-                      />
-                      {fieldState.error ? <p className="text-xs text-destructive">{fieldState.error.message}</p> : null}
-                    </>
-                  )}
-                />
-              </div>
-
-              <div className="space-y-1.5">
-                <Typography.Text strong>Applicable users</Typography.Text>
-                <Controller
-                  name="applicableUsers"
-                  control={form.control}
-                  render={({ field }) => (
-                    <Select
-                      value={field.value}
-                      onChange={(v) => field.onChange(v)}
-                      options={[
-                        { value: "all", label: "All" },
-                        { value: "new_user", label: "New users" },
-                        { value: "specific", label: "Specific users" },
-                      ]}
-                    />
-                  )}
-                />
-              </div>
-
-              <div className="space-y-1.5">
-                <Typography.Text strong>Discount type</Typography.Text>
-                <Controller
-                  name="discountType"
-                  control={form.control}
-                  render={({ field }) => (
-                    <Select
-                      value={field.value}
-                      onChange={(v) => field.onChange(v)}
-                      options={[
-                        { value: "fixed", label: "Fixed" },
-                        { value: "percentage", label: "Percentage" },
-                      ]}
-                    />
-                  )}
-                />
-              </div>
-
-              <div className="space-y-1.5">
-                <Typography.Text strong>Discount value</Typography.Text>
-                <Controller
-                  name="discountValue"
-                  control={form.control}
-                  render={({ field, fieldState }) => (
-                    <>
-                      <Input
-                        id="discountValue"
-                        type="number"
-                        step="0.01"
-                        value={field.value as unknown as string}
-                        onChange={(e) => field.onChange(e.target.value)}
-                        onBlur={field.onBlur}
-                      />
-                      {fieldState.error ? <p className="text-xs text-destructive">{fieldState.error.message}</p> : null}
-                    </>
-                  )}
-                />
-              </div>
-
-              <div className="space-y-1.5">
-                <Typography.Text strong>Min order value (optional)</Typography.Text>
-                <Controller
-                  name="minOrderValue"
-                  control={form.control}
-                  render={({ field }) => (
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            <div className="space-y-1.5">
+              <Typography.Text strong>Code</Typography.Text>
+              <Controller
+                name="code"
+                control={form.control}
+                render={({ field, fieldState }) => (
+                  <>
                     <Input
-                      id="minOrderValue"
+                      id="code"
+                      placeholder="SUMMER2026"
+                      value={field.value ?? ""}
+                      onChange={(e) => field.onChange(e.target.value)}
+                      onBlur={field.onBlur}
+                    />
+                    {fieldState.error ? (
+                      <p className="text-xs text-destructive">{fieldState.error.message}</p>
+                    ) : null}
+                  </>
+                )}
+              />
+            </div>
+
+            <div className="space-y-1.5">
+              <Typography.Text strong>Applicable users</Typography.Text>
+              <Controller
+                name="applicableUsers"
+                control={form.control}
+                render={({ field }) => (
+                  <Select
+                    value={field.value}
+                    onChange={(v) => field.onChange(v)}
+                    options={[
+                      { value: "all", label: "All" },
+                      { value: "new_user", label: "New users" },
+                      { value: "specific", label: "Specific users" },
+                    ]}
+                  />
+                )}
+              />
+            </div>
+
+            <div className="space-y-1.5">
+              <Typography.Text strong>Discount type</Typography.Text>
+              <Controller
+                name="discountType"
+                control={form.control}
+                render={({ field }) => (
+                  <Select
+                    value={field.value}
+                    onChange={(v) => field.onChange(v)}
+                    options={[
+                      { value: "fixed", label: "Fixed" },
+                      { value: "percentage", label: "Percentage" },
+                    ]}
+                  />
+                )}
+              />
+            </div>
+
+            <div className="space-y-1.5">
+              <Typography.Text strong>Discount value</Typography.Text>
+              <Controller
+                name="discountValue"
+                control={form.control}
+                render={({ field, fieldState }) => (
+                  <>
+                    <Input
+                      id="discountValue"
+                      type="number"
+                      step="0.01"
+                      value={field.value as unknown as string}
+                      onChange={(e) => field.onChange(e.target.value)}
+                      onBlur={field.onBlur}
+                    />
+                    {fieldState.error ? (
+                      <p className="text-xs text-destructive">{fieldState.error.message}</p>
+                    ) : null}
+                  </>
+                )}
+              />
+            </div>
+
+            <div className="space-y-1.5">
+              <Typography.Text strong>Min order value (optional)</Typography.Text>
+              <Controller
+                name="minOrderValue"
+                control={form.control}
+                render={({ field }) => (
+                  <Input
+                    id="minOrderValue"
+                    type="number"
+                    step="0.01"
+                    value={field.value == null ? "" : (field.value as unknown as string)}
+                    onChange={(e) => field.onChange(e.target.value)}
+                    onBlur={field.onBlur}
+                  />
+                )}
+              />
+            </div>
+
+            <div className="space-y-1.5">
+              <Typography.Text strong>
+                Max discount value {values.discountType === "percentage" ? "" : "(optional)"}
+              </Typography.Text>
+              <Controller
+                name="maxDiscountValue"
+                control={form.control}
+                render={({ field, fieldState }) => (
+                  <>
+                    <Input
+                      id="maxDiscountValue"
                       type="number"
                       step="0.01"
                       value={field.value == null ? "" : (field.value as unknown as string)}
                       onChange={(e) => field.onChange(e.target.value)}
                       onBlur={field.onBlur}
                     />
-                  )}
-                />
-              </div>
-
-              <div className="space-y-1.5">
-                <Typography.Text strong>
-                  Max discount value {values.discountType === "percentage" ? "" : "(optional)"}
-                </Typography.Text>
-                <Controller
-                  name="maxDiscountValue"
-                  control={form.control}
-                  render={({ field, fieldState }) => (
-                    <>
-                      <Input
-                        id="maxDiscountValue"
-                        type="number"
-                        step="0.01"
-                        value={field.value == null ? "" : (field.value as unknown as string)}
-                        onChange={(e) => field.onChange(e.target.value)}
-                        onBlur={field.onBlur}
-                      />
-                      {fieldState.error ? <p className="text-xs text-destructive">{fieldState.error.message}</p> : null}
-                    </>
-                  )}
-                />
-              </div>
-
-              <div className="space-y-1.5">
-                <Typography.Text strong>Quantity</Typography.Text>
-                <Controller
-                  name="quantity"
-                  control={form.control}
-                  render={({ field, fieldState }) => (
-                    <>
-                      <Input
-                        id="quantity"
-                        type="number"
-                        step="1"
-                        value={field.value as unknown as string}
-                        onChange={(e) => field.onChange(e.target.value)}
-                        onBlur={field.onBlur}
-                      />
-                      {fieldState.error ? <p className="text-xs text-destructive">{fieldState.error.message}</p> : null}
-                    </>
-                  )}
-                />
-              </div>
-
-              <div className="flex items-end gap-2">
-                <Controller
-                  name="isActive"
-                  control={form.control}
-                  render={({ field }) => (
-                    <Checkbox checked={Boolean(field.value)} onChange={(e) => field.onChange(e.target.checked)}>
-                      Active
-                    </Checkbox>
-                  )}
-                />
-              </div>
+                    {fieldState.error ? (
+                      <p className="text-xs text-destructive">{fieldState.error.message}</p>
+                    ) : null}
+                  </>
+                )}
+              />
             </div>
 
-            {values.applicableUsers === "specific" && (
-              <div className="space-y-1.5">
-                <Typography.Text strong>Specific users (comma-separated userIds)</Typography.Text>
-                <Controller
-                  name="specificUsers"
-                  control={form.control}
-                  render={({ field, fieldState }) => (
-                    <>
-                      <Input
-                        id="specificUsers"
-                        placeholder="12, 34, 56"
-                        value={field.value ?? ""}
-                        onChange={(e) => field.onChange(e.target.value)}
-                        onBlur={field.onBlur}
-                      />
-                      {fieldState.error ? <p className="text-xs text-destructive">{fieldState.error.message}</p> : null}
-                    </>
-                  )}
-                />
-              </div>
-            )}
-
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-              <div className="space-y-1.5">
-                <Typography.Text strong>Start</Typography.Text>
-                <Controller
-                  name="startDate"
-                  control={form.control}
-                  render={({ field, fieldState }) => (
-                    <>
-                      <Input
-                        id="startDate"
-                        type="datetime-local"
-                        value={field.value ?? ""}
-                        onChange={(e) => field.onChange(e.target.value)}
-                        onBlur={field.onBlur}
-                      />
-                      {fieldState.error ? <p className="text-xs text-destructive">{fieldState.error.message}</p> : null}
-                    </>
-                  )}
-                />
-              </div>
-              <div className="space-y-1.5">
-                <Typography.Text strong>End</Typography.Text>
-                <Controller
-                  name="endDate"
-                  control={form.control}
-                  render={({ field, fieldState }) => (
-                    <>
-                      <Input
-                        id="endDate"
-                        type="datetime-local"
-                        value={field.value ?? ""}
-                        onChange={(e) => field.onChange(e.target.value)}
-                        onBlur={field.onBlur}
-                      />
-                      {fieldState.error ? <p className="text-xs text-destructive">{fieldState.error.message}</p> : null}
-                    </>
-                  )}
-                />
-              </div>
+            <div className="space-y-1.5">
+              <Typography.Text strong>Quantity</Typography.Text>
+              <Controller
+                name="quantity"
+                control={form.control}
+                render={({ field, fieldState }) => (
+                  <>
+                    <Input
+                      id="quantity"
+                      type="number"
+                      step="1"
+                      value={field.value as unknown as string}
+                      onChange={(e) => field.onChange(e.target.value)}
+                      onBlur={field.onBlur}
+                    />
+                    {fieldState.error ? (
+                      <p className="text-xs text-destructive">{fieldState.error.message}</p>
+                    ) : null}
+                  </>
+                )}
+              />
             </div>
 
-            <div className="flex justify-end gap-2 pt-2">
-              <Button onClick={() => onOpenChange(false)} disabled={submitting}>
-                Cancel
+            <div className="flex items-end gap-2">
+              <Controller
+                name="isActive"
+                control={form.control}
+                render={({ field }) => (
+                  <Checkbox checked={Boolean(field.value)} onChange={(e) => field.onChange(e.target.checked)}>
+                    Active
+                  </Checkbox>
+                )}
+              />
+            </div>
+          </div>
+
+          {values.applicableUsers === "specific" && (
+            <div className="space-y-1.5">
+              <Typography.Text strong>Specific users (comma-separated userIds)</Typography.Text>
+              <Controller
+                name="specificUsers"
+                control={form.control}
+                render={({ field, fieldState }) => (
+                  <>
+                    <Input
+                      id="specificUsers"
+                      placeholder="12, 34, 56"
+                      value={field.value ?? ""}
+                      onChange={(e) => field.onChange(e.target.value)}
+                      onBlur={field.onBlur}
+                    />
+                    {fieldState.error ? (
+                      <p className="text-xs text-destructive">{fieldState.error.message}</p>
+                    ) : null}
+                  </>
+                )}
+              />
+            </div>
+          )}
+
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            <div className="space-y-1.5">
+              <Typography.Text strong>Start</Typography.Text>
+              <Controller
+                name="startDate"
+                control={form.control}
+                render={({ field, fieldState }) => (
+                  <>
+                    <Input
+                      id="startDate"
+                      type="datetime-local"
+                      value={field.value ?? ""}
+                      onChange={(e) => field.onChange(e.target.value)}
+                      onBlur={field.onBlur}
+                    />
+                    {fieldState.error ? (
+                      <p className="text-xs text-destructive">{fieldState.error.message}</p>
+                    ) : null}
+                  </>
+                )}
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Typography.Text strong>End</Typography.Text>
+              <Controller
+                name="endDate"
+                control={form.control}
+                render={({ field, fieldState }) => (
+                  <>
+                    <Input
+                      id="endDate"
+                      type="datetime-local"
+                      value={field.value ?? ""}
+                      onChange={(e) => field.onChange(e.target.value)}
+                      onBlur={field.onBlur}
+                    />
+                    {fieldState.error ? (
+                      <p className="text-xs text-destructive">{fieldState.error.message}</p>
+                    ) : null}
+                  </>
+                )}
+              />
+            </div>
+          </div>
+
+          <div className="flex justify-end gap-2 pt-2">
+            <Button onClick={() => onOpenChange(false)} disabled={submitting}>
+              Cancel
+            </Button>
+            <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+              <Button type="primary" htmlType="submit" disabled={submitting}>
+                {submitting ? "Saving…" : "Save"}
               </Button>
-              <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-                <Button type="primary" htmlType="submit" disabled={submitting}>
-                  {submitting ? "Saving…" : "Save"}
-                </Button>
-              </motion.div>
-            </div>
+            </motion.div>
+          </div>
         </form>
       </motion.div>
     </Modal>
   )
 }
-

@@ -2,7 +2,7 @@
 
 import { Tabs } from "antd"
 
-export function DashboardTabs() {
+export const DashboardTabs = () => {
   return (
     <Tabs
       defaultActiveKey="outline"
@@ -23,9 +23,7 @@ export function DashboardTabs() {
           label: "Past Performance (3)",
           children: (
             <div className="rounded-xl border border-border/50 bg-card/95 p-6 shadow-sm backdrop-blur-sm">
-              <p className="text-sm text-muted-foreground">
-                Past Performance content. 3 items available.
-              </p>
+              <p className="text-sm text-muted-foreground">Past Performance content. 3 items available.</p>
             </div>
           ),
         },
@@ -34,9 +32,7 @@ export function DashboardTabs() {
           label: "Key Personnel (2)",
           children: (
             <div className="rounded-xl border border-border/50 bg-card/95 p-6 shadow-sm backdrop-blur-sm">
-              <p className="text-sm text-muted-foreground">
-                Key Personnel content. 2 items available.
-              </p>
+              <p className="text-sm text-muted-foreground">Key Personnel content. 2 items available.</p>
             </div>
           ),
         },

@@ -1,11 +1,18 @@
 "use client"
 
 import * as React from "react"
-import { Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip as RechartsTooltip, XAxis } from "recharts"
+import {
+  Area,
+  AreaChart,
+  CartesianGrid,
+  ResponsiveContainer,
+  Tooltip as RechartsTooltip,
+  XAxis,
+} from "recharts"
 
 import { useIsMobile } from "@/hooks/use-mobile"
 import { Card, Segmented, Typography } from "antd"
-import { cn } from "@/lib/utils"
+import { cn } from "@/utils/utils"
 
 type RangeFilter = "3m" | "30d" | "7d"
 
@@ -80,7 +87,7 @@ const allChartData = [
   { date: "Dec 7", visitors: 1400 },
 ]
 
-export function VisitorsChart() {
+export const VisitorsChart = () => {
   const isMobile = useIsMobile()
   const [range, setRange] = React.useState<RangeFilter>("3m")
 
@@ -101,13 +108,17 @@ export function VisitorsChart() {
     <Card
       className={cn(
         "rounded-xl border border-border/60 bg-card/95 shadow-sm backdrop-blur-sm",
-        "dark:bg-card/90"
+        "dark:bg-card/90",
       )}
     >
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between space-y-0">
         <div>
-          <Typography.Title level={5} className="mb-0!">Total Visitors</Typography.Title>
-          <Typography.Text type="secondary" className="mt-0.5 block">{subtitle}</Typography.Text>
+          <Typography.Title level={5} className="mb-0!">
+            Total Visitors
+          </Typography.Title>
+          <Typography.Text type="secondary" className="mt-0.5 block">
+            {subtitle}
+          </Typography.Text>
         </div>
         <Segmented
           value={range}
@@ -124,9 +135,7 @@ export function VisitorsChart() {
           <AreaChart
             data={filteredData}
             margin={
-              isMobile
-                ? { top: 8, right: 8, bottom: 8, left: 8 }
-                : { top: 8, right: 16, bottom: 8, left: 16 }
+              isMobile ? { top: 8, right: 8, bottom: 8, left: 8 } : { top: 8, right: 16, bottom: 8, left: 16 }
             }
           >
             <defs>

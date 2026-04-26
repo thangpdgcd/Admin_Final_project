@@ -13,11 +13,10 @@ const defaultCategoryFilter: CategoryFilter = {
   family: true,
 }
 
-export function Calendar() {
+export const Calendar = () => {
   const [currentDate, setCurrentDate] = React.useState(() => new Date())
   const [events, setEvents] = React.useState<CalendarEvent[]>([])
-  const [categoryFilter, setCategoryFilter] =
-    React.useState<CategoryFilter>(defaultCategoryFilter)
+  const [categoryFilter, setCategoryFilter] = React.useState<CategoryFilter>(defaultCategoryFilter)
   const [modalOpen, setModalOpen] = React.useState(false)
   const [selectedEvent, setSelectedEvent] = React.useState<CalendarEvent | null>(null)
   const [defaultStart, setDefaultStart] = React.useState<Date | undefined>(undefined)
@@ -39,8 +38,8 @@ export function Calendar() {
                 end: values.end,
                 category: values.category,
               }
-            : e
-        )
+            : e,
+        ),
       )
     } else {
       const newEvent: CalendarEvent = {

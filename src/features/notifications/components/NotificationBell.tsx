@@ -1,10 +1,10 @@
-"use client";
+"use client"
 
-import { Bell } from "lucide-react";
-import { motion } from "framer-motion";
-import { Button, Dropdown } from "antd";
-import type { NotificationRow } from "../model/types";
-import { NotificationDropdown } from "./NotificationDropdown";
+import { Bell } from "lucide-react"
+import { motion } from "framer-motion"
+import { Button, Dropdown } from "antd"
+import type { NotificationRow } from "../model/types"
+import { NotificationDropdown } from "./NotificationDropdown"
 
 export const NotificationBell = ({
   unreadCount,
@@ -12,10 +12,10 @@ export const NotificationBell = ({
   onItemClick,
   onMarkAllRead,
 }: {
-  unreadCount: number;
-  items: NotificationRow[];
-  onItemClick: (n: NotificationRow) => void;
-  onMarkAllRead: () => void;
+  unreadCount: number
+  items: NotificationRow[]
+  onItemClick: (n: NotificationRow) => void
+  onMarkAllRead: () => void
 }) => {
   return (
     <Dropdown
@@ -41,6 +41,5 @@ export const NotificationBell = ({
         )}
       </Button>
     </Dropdown>
-  );
-};
-
+  )
+}

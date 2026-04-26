@@ -1,17 +1,11 @@
 "use client"
 
 import * as React from "react"
-import {
-  Reply,
-  Forward,
-  MoreHorizontal,
-  Send,
-  VolumeX,
-} from "lucide-react"
+import { Reply, Forward, MoreHorizontal, Send, VolumeX } from "lucide-react"
 import { Button, Dropdown, Input } from "antd"
 import type { Email } from "./EmailList"
 
-function getInitials(name: string) {
+const getInitials = (name: string) => {
   return name
     .split(" ")
     .map((n) => n[0])
@@ -24,7 +18,7 @@ export interface EmailContentProps {
   email: Email | null
 }
 
-export function EmailContent({ email }: EmailContentProps) {
+export const EmailContent = ({ email }: EmailContentProps) => {
   const [reply, setReply] = React.useState("")
   const [mute, setMute] = React.useState(false)
 
@@ -79,18 +73,14 @@ export function EmailContent({ email }: EmailContentProps) {
       </div>
 
       <div className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden p-4">
-        <p className="text-sm leading-relaxed text-muted-foreground">
-          {email.preview}
+        <p className="text-sm leading-relaxed text-muted-foreground">{email.preview}</p>
+        <p className="mt-4 text-sm leading-relaxed">
+          Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore
+          et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris.
         </p>
         <p className="mt-4 text-sm leading-relaxed">
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod
-          tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim
-          veniam, quis nostrud exercitation ullamco laboris.
-        </p>
-        <p className="mt-4 text-sm leading-relaxed">
-          Duis aute irure dolor in reprehenderit in voluptate velit esse cillum
-          dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non
-          proident.
+          Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla
+          pariatur. Excepteur sint occaecat cupidatat non proident.
         </p>
       </div>
 

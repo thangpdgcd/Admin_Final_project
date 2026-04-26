@@ -6,7 +6,7 @@ import { RecentTransactions } from "@/components/dashboard2/RecentTransactions"
 import { TopProducts } from "@/components/dashboard2/TopProducts"
 import { CustomerInsights } from "@/components/dashboard2/CustomerInsights"
 
-export function Dashboard2() {
+export const Dashboard2 = () => {
   return (
     <div className="space-y-6">
       <Dashboard2Header />

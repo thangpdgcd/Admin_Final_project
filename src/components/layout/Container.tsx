@@ -1,5 +1,5 @@
 import * as React from "react"
-import { cn } from "@/lib/utils"
+import { cn } from "@/utils/utils"
 
 type ContainerProps = React.ComponentProps<"div"> & {
   /**
@@ -13,13 +13,8 @@ type ContainerProps = React.ComponentProps<"div"> & {
 export const Container = ({ className, size = "xl", ...props }: ContainerProps) => {
   return (
     <div
-      className={cn(
-        "w-full min-w-0",
-        size === "xl" && "mx-auto max-w-screen-2xl",
-        className
-      )}
+      className={cn("w-full min-w-0", size === "xl" && "mx-auto max-w-screen-2xl", className)}
       {...props}
     />
   )
 }
-

@@ -1,2 +1,1 @@
-export { DashboardPage as DashboardAdmin } from "@/pages/admin/DashboardPage";
-
+export { DashboardPage as DashboardAdmin } from "@/pages/admin/DashboardPage"

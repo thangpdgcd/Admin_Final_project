@@ -119,7 +119,7 @@ export const VoucherTable = ({ items, onEdit, onDelete }: Props) => {
         ),
       },
     ],
-    [onDelete, onEdit]
+    [onDelete, onEdit],
   )
 
   return (
@@ -141,4 +141,3 @@ export const VoucherTable = ({ items, onEdit, onDelete }: Props) => {
     </div>
   )
 }
-

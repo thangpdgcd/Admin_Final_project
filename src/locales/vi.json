@@ -1,0 +1,146 @@
+{
+  "app": {
+    "name": "Coffee Shop Admin"
+  },
+  "nav": {
+    "main": "Chính",
+    "apps": "Ứng dụng",
+    "management": "Quản lý",
+    "settingsGroup": "Cài đặt"
+  },
+  "menu": {
+    "dashboard": "Bảng điều khiển",
+    "mail": "Thư",
+    "tasks": "Công việc",
+    "chat": "Trò chuyện",
+    "calendar": "Lịch",
+    "users": "Người dùng",
+    "products": "Sản phẩm",
+    "orders": "Đơn hàng",
+    "categories": "Danh mục",
+    "vouchers": "Mã giảm giá",
+    "teamChat": "Chat nhân viên",
+    "settings": "Cài đặt"
+  },
+  "header": {
+    "toggleMenu": "Bật/tắt menu (⌘B)",
+    "notifications": "Thông báo",
+    "noNotifications": "Chưa có thông báo",
+    "userMenu": "Menu người dùng",
+    "profile": "Hồ sơ",
+    "logout": "Đăng xuất",
+    "switchLanguage": "Đổi ngôn ngữ",
+    "switchToDark": "Chuyển sang giao diện tối",
+    "switchToLight": "Chuyển sang giao diện sáng"
+  },
+  "common": {
+    "actions": "Thao tác",
+    "edit": "Sửa",
+    "delete": "Xoá",
+    "save": "Lưu",
+    "cancel": "Huỷ",
+    "noData": "Không có dữ liệu",
+    "createdAt": "Ngày tạo",
+    "confirmDeleteTitle": "Xoá mục này?",
+    "confirmDeleteDesc": "Hành động này không thể hoàn tác."
+  },
+  "products": {
+    "subtitle": "Quản lý sản phẩm cà phê và menu.",
+    "new": "Thêm sản phẩm",
+    "newTitle": "Thêm sản phẩm",
+    "editTitle": "Sửa sản phẩm",
+    "searchPlaceholder": "Tìm kiếm sản phẩm",
+    "filterCategory": "Lọc theo danh mục",
+    "selectCategory": "Chọn danh mục",
+    "name": "Tên sản phẩm",
+    "price": "Giá",
+    "stock": "Tồn kho",
+    "category": "Danh mục",
+    "image": "Hình ảnh",
+    "selectImage": "Chọn ảnh",
+    "nameRequired": "Vui lòng nhập tên sản phẩm",
+    "priceRequired": "Vui lòng nhập giá",
+    "stockRequired": "Vui lòng nhập số lượng tồn"
+  },
+  "dashboard": {
+    "title": "Bảng điều khiển",
+    "subtitle": "Tổng quan người dùng, sản phẩm, đơn hàng và doanh thu.",
+    "totalUsers": "Tổng người dùng",
+    "totalOrders": "Tổng đơn hàng",
+    "totalProducts": "Tổng sản phẩm",
+    "totalCategories": "Tổng danh mục",
+    "totalRevenue": "Tổng doanh thu",
+    "ordersChart": "Biểu đồ đơn hàng (tạm thời)",
+    "ordersChartHint": "Tích hợp thư viện biểu đồ để hiển thị đơn hàng theo thời gian.",
+    "recentOrders": "Đơn hàng gần đây"
+  },
+  "orders": {
+    "title": "Đơn hàng",
+    "subtitle": "Quản lý và theo dõi toàn bộ đơn hàng của khách.",
+    "searchPlaceholder": "Tìm theo khách hàng hoặc mã đơn",
+    "noOrders": "Không có đơn hàng",
+    "view": "Xem",
+    "detailsTitle": "Chi tiết đơn hàng",
+    "fieldOrderId": "Mã đơn",
+    "fieldCustomer": "Khách hàng",
+    "fieldTotal": "Tổng tiền (VND)",
+    "fieldStatus": "Trạng thái",
+    "fieldCreatedAt": "Thời gian tạo",
+    "id": "Mã đơn",
+    "customer": "Khách hàng",
+    "totalPrice": "Tổng tiền",
+    "status": "Trạng thái",
+    "date": "Ngày",
+    "paid": "Đã thanh toán",
+    "unpaid": "Chưa thanh toán",
+    "delivered": "Đã giao",
+    "undelivered": "Chưa giao",
+    "pending": "Chờ xử lý"
+  },
+  "users": {
+    "title": "Người dùng",
+    "subtitle": "Quản lý tài khoản, vai trò và hoạt động gần đây.",
+    "searchPlaceholder": "Tìm người dùng…",
+    "manageSubtitle": "Quản lý tài khoản admin và nhân viên",
+    "totalUsers": "Tổng người dùng",
+    "fromDatabase": "Từ cơ sở dữ liệu",
+    "allRoles": "Tất cả vai trò",
+    "addNew": "Thêm người dùng",
+    "missingUserId": "Thiếu mã người dùng",
+    "createdSuccess": "Tạo người dùng thành công",
+    "updatedSuccess": "Cập nhật người dùng thành công",
+    "deletedSuccess": "Xoá người dùng thành công",
+    "columns": {
+      "user": "Người dùng",
+      "email": "Email",
+      "role": "Vai trò",
+      "status": "Trạng thái",
+      "created": "Ngày tạo",
+      "actions": "Thao tác"
+    }
+  },
+  "categories": {
+    "title": "Danh mục",
+    "subtitle": "Quản lý danh mục sản phẩm trong hệ thống.",
+    "new": "Thêm danh mục",
+    "newTitle": "Thêm danh mục",
+    "editTitle": "Sửa danh mục",
+    "searchPlaceholder": "Tìm theo tên",
+    "fetchFailed": "Tải danh mục thất bại",
+    "deleteFailed": "Xoá danh mục thất bại",
+    "saveFailed": "Lưu danh mục thất bại",
+    "columns": {
+      "name": "Tên danh mục",
+      "description": "Mô tả",
+      "createdAt": "Ngày tạo",
+      "actions": "Thao tác"
+    }
+  },
+  "vouchers": {
+    "title": "Mã giảm giá",
+    "subtitle": "Tạo, quản lý và theo dõi voucher khuyến mãi.",
+    "new": "Thêm voucher",
+    "searchPlaceholder": "Tìm theo mã…",
+    "deactivated": "Đã vô hiệu hoá voucher"
+  }
+}

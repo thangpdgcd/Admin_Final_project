@@ -15,10 +15,8 @@ const defaultConversation: Conversation = {
   peerRoleId: "3",
 }
 
-export function Chat() {
-  const [selected, setSelected] = React.useState<Conversation | null>(
-    defaultConversation
-  )
+export const Chat = () => {
+  const [selected, setSelected] = React.useState<Conversation | null>(defaultConversation)
 
   return (
     <div className="flex h-full min-h-[400px] w-full min-w-0 overflow-hidden bg-background">

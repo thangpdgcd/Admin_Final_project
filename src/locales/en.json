@@ -1,0 +1,146 @@
+{
+  "app": {
+    "name": "Coffee Shop Admin"
+  },
+  "nav": {
+    "main": "Main",
+    "apps": "Apps",
+    "management": "Management",
+    "settingsGroup": "Settings"
+  },
+  "menu": {
+    "dashboard": "Dashboard",
+    "mail": "Mail",
+    "tasks": "Tasks",
+    "chat": "Chat",
+    "calendar": "Calendar",
+    "users": "Users",
+    "products": "Products",
+    "orders": "Orders",
+    "categories": "Categories",
+    "vouchers": "Vouchers",
+    "teamChat": "Staff messages",
+    "settings": "Settings"
+  },
+  "header": {
+    "toggleMenu": "Toggle menu (⌘B)",
+    "notifications": "Notifications",
+    "noNotifications": "No notifications",
+    "userMenu": "User menu",
+    "profile": "Profile",
+    "logout": "Log out",
+    "switchLanguage": "Switch language",
+    "switchToDark": "Switch to dark mode",
+    "switchToLight": "Switch to light mode"
+  },
+  "common": {
+    "actions": "Actions",
+    "edit": "Edit",
+    "delete": "Delete",
+    "save": "Save",
+    "cancel": "Cancel",
+    "noData": "No data",
+    "createdAt": "Created Date",
+    "confirmDeleteTitle": "Delete this item?",
+    "confirmDeleteDesc": "This action cannot be undone."
+  },
+  "products": {
+    "subtitle": "Manage coffee products and menu items.",
+    "new": "New Product",
+    "newTitle": "New Product",
+    "editTitle": "Edit Product",
+    "searchPlaceholder": "Search products",
+    "filterCategory": "Filter by category",
+    "selectCategory": "Select category",
+    "name": "Product Name",
+    "price": "Price",
+    "stock": "Stock",
+    "category": "Category",
+    "image": "Image",
+    "selectImage": "Select Image",
+    "nameRequired": "Please enter a product name",
+    "priceRequired": "Please enter a price",
+    "stockRequired": "Please enter stock quantity"
+  },
+  "dashboard": {
+    "title": "Admin Dashboard",
+    "subtitle": "Overview of users, products, orders, and revenue.",
+    "totalUsers": "Total users",
+    "totalOrders": "Total Orders",
+    "totalProducts": "Total Products",
+    "totalCategories": "Total Categories",
+    "totalRevenue": "Total Revenue",
+    "ordersChart": "Orders chart (placeholder)",
+    "ordersChartHint": "Integrate a chart library here to visualize orders over time.",
+    "recentOrders": "Recent Orders"
+  },
+  "orders": {
+    "title": "Orders",
+    "subtitle": "Manage and view all customer orders.",
+    "searchPlaceholder": "Search by customer or ID",
+    "noOrders": "No orders found",
+    "view": "View",
+    "detailsTitle": "Order details",
+    "fieldOrderId": "Order ID",
+    "fieldCustomer": "Customer",
+    "fieldTotal": "Total (VND)",
+    "fieldStatus": "Status",
+    "fieldCreatedAt": "Created at",
+    "id": "Order ID",
+    "customer": "Customer",
+    "totalPrice": "Total Price",
+    "status": "Status",
+    "date": "Date",
+    "paid": "Paid",
+    "unpaid": "Unpaid",
+    "delivered": "Delivered",
+    "undelivered": "Not delivered",
+    "pending": "Pending"
+  },
+  "users": {
+    "title": "Users",
+    "subtitle": "Manage accounts, roles, and recent activity.",
+    "searchPlaceholder": "Search users…",
+    "manageSubtitle": "Manage admin and staff accounts",
+    "totalUsers": "Total Users",
+    "fromDatabase": "From database",
+    "allRoles": "All roles",
+    "addNew": "Add New User",
+    "missingUserId": "Missing user id",
+    "createdSuccess": "User created successfully",
+    "updatedSuccess": "User updated successfully",
+    "deletedSuccess": "User deleted successfully",
+    "columns": {
+      "user": "User",
+      "email": "Email",
+      "role": "Role",
+      "status": "Status",
+      "created": "Created",
+      "actions": "Actions"
+    }
+  },
+  "categories": {
+    "title": "Categories",
+    "subtitle": "Manage product categories used across the catalog.",
+    "new": "New Category",
+    "newTitle": "New Category",
+    "editTitle": "Edit Category",
+    "searchPlaceholder": "Search by name",
+    "fetchFailed": "Failed to fetch categories",
+    "deleteFailed": "Failed to delete category",
+    "saveFailed": "Failed to save category",
+    "columns": {
+      "name": "Category Name",
+      "description": "Description",
+      "createdAt": "Created Date",
+      "actions": "Actions"
+    }
+  },
+  "vouchers": {
+    "title": "Vouchers",
+    "subtitle": "Create, manage, and track promo vouchers.",
+    "new": "New voucher",
+    "searchPlaceholder": "Search by code…",
+    "deactivated": "Voucher deactivated"
+  }
+}

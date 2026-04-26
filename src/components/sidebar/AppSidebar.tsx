@@ -10,21 +10,27 @@ import {
   Headphones,
   TicketPercent,
 } from "lucide-react"
-import { Layout, Menu, Typography } from "antd"
+import { Drawer, Layout, Menu, Typography } from "antd"
 import { useLocation, useNavigate } from "react-router-dom"
 import { useTranslation } from "react-i18next"
 
-export function AppSidebar({
+export const AppSidebar = ({
   user,
   onLogout,
-  collapsed,
-  onCollapsedChange,
+  isMobile,
+  desktopCollapsed,
+  onDesktopCollapsedChange,
+  mobileOpen,
+  onMobileOpenChange,
 }: {
   user: { name: string; email: string; avatar?: string | null }
   onLogout: () => void
-  collapsed: boolean
-  onCollapsedChange: (v: boolean) => void
-}) {
+  isMobile: boolean
+  desktopCollapsed: boolean
+  onDesktopCollapsedChange: (v: boolean) => void
+  mobileOpen: boolean
+  onMobileOpenChange: (open: boolean) => void
+}) => {
   const { t } = useTranslation()
   const location = useLocation()
   const navigate = useNavigate()
@@ -32,9 +38,7 @@ export function AppSidebar({
   const navGroups = [
     {
       label: t("nav.main"),
-      items: [
-        { title: t("menu.dashboard"), url: "/system/dashboard-admin", icon: LayoutDashboard },
-      ],
+      items: [{ title: t("menu.dashboard"), url: "/system/dashboard-admin", icon: LayoutDashboard }],
     },
     {
       label: t("nav.management"),
@@ -61,28 +65,14 @@ export function AppSidebar({
       key: it.url,
       icon: <it.icon className="h-4 w-4" />,
       label: it.title,
-    }))
+    })),
   )
 
-  return (
-    <Layout.Sider
-      collapsible
-      collapsed={collapsed}
-      onCollapse={(v) => onCollapsedChange(v)}
-      breakpoint="lg"
-      collapsedWidth={0}
-      onBreakpoint={(broken) => onCollapsedChange(broken)}
-      width={260}
-      theme="dark"
-      className="min-h-svh"
-    >
+  const content = (
+    <div className="relative h-full min-h-0">
       <div className="px-4 py-4">
-        <Typography.Text className="text-white font-semibold">
-          {t("app.name")}
-        </Typography.Text>
-        {!collapsed && (
-          <div className="mt-1 text-xs text-white/60 truncate">{user.email}</div>
-        )}
+        <Typography.Text className="text-white font-semibold">{t("app.name")}</Typography.Text>
+        <div className="mt-1 text-xs text-white/60 truncate">{user.email}</div>
       </div>
 
       <Menu
@@ -90,18 +80,51 @@ export function AppSidebar({
         mode="inline"
         selectedKeys={[location.pathname]}
         items={flatItems}
-        onClick={(e) => navigate(e.key)}
+        onClick={(e) => {
+          navigate(e.key)
+          if (isMobile) onMobileOpenChange(false)
+        }}
       />
 
       <div className="absolute bottom-0 left-0 right-0 p-3">
         <button
           type="button"
-          onClick={onLogout}
+          onClick={() => {
+            onLogout()
+            if (isMobile) onMobileOpenChange(false)
+          }}
           className="w-full rounded-md px-3 py-2 text-left text-sm text-white/80 hover:bg-white/10"
         >
           {t("header.logout")}
         </button>
       </div>
+    </div>
+  )
+
+  if (isMobile) {
+    return (
+      <Drawer
+        open={mobileOpen}
+        onClose={() => onMobileOpenChange(false)}
+        placement="left"
+        size="default"
+        styles={{ body: { padding: 0 } }}
+      >
+        <div className="h-full bg-muted/30">{content}</div>
+      </Drawer>
+    )
+  }
+
+  return (
+    <Layout.Sider
+      collapsible
+      collapsed={desktopCollapsed}
+      onCollapse={(v) => onDesktopCollapsedChange(v)}
+      width={260}
+      theme="dark"
+      className="min-h-svh"
+    >
+      {content}
     </Layout.Sider>
   )
 }

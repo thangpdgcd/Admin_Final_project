@@ -6,7 +6,7 @@ import { useTheme } from "next-themes"
 import { Button } from "antd"
 import { useTranslation } from "react-i18next"
 
-export function ModeToggle() {
+export const ModeToggle = () => {
   const { theme, setTheme } = useTheme()
   const [mounted, setMounted] = React.useState(false)
   const { t } = useTranslation()
@@ -28,9 +28,7 @@ export function ModeToggle() {
           <Moon className="size-4 transition-transform duration-300" />
         )}
       </span>
-      <span className="sr-only">
-        {isDark ? t("header.switchToLight") : t("header.switchToDark")}
-      </span>
+      <span className="sr-only">{isDark ? t("header.switchToLight") : t("header.switchToDark")}</span>
     </Button>
   )
 }

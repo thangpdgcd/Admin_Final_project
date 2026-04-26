@@ -1,60 +1,59 @@
-import * as React from "react";
-import { Send, Headphones, MessageSquare, RefreshCw } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
-import type { AxiosError } from "axios";
-import { cn } from "@/lib/utils";
-import { Button, Drawer, Input } from "antd";
-import { useAdminStaffChat } from "@/features/teamChat/hooks/useAdminStaffChat";
-import { teamChatApi, type TeamMemberRow } from "@/features/teamChat/api/teamChatApi";
-import { normalizeApiError } from "@/shared/utils/errors";
-import { useIsMobile } from "@/hooks/use-mobile";
+import * as React from "react"
+import { Send, Headphones, MessageSquare, RefreshCw } from "lucide-react"
+import { motion, AnimatePresence } from "framer-motion"
+import type { AxiosError } from "axios"
+import { cn } from "@/utils/utils"
+import { Button, Drawer, Input } from "antd"
+import { useAdminStaffChat } from "@/features/teamChat/hooks/useAdminStaffChat"
+import { teamChatApi, type TeamMemberRow } from "@/features/teamChat/api/teamChatApi"
+import { normalizeApiError } from "@/utils/errors"
+import { useIsMobile } from "@/hooks/use-mobile"
 
 export const AdminStaffMessagesPage = () => {
-  const isMobile = useIsMobile();
-  const [staffList, setStaffList] = React.useState<TeamMemberRow[]>([]);
-  const [loading, setLoading] = React.useState(true);
-  const [loadError, setLoadError] = React.useState<string | null>(null);
-  const [selectedStaffId, setSelectedStaffId] = React.useState("");
-  const [input, setInput] = React.useState("");
-  const [drawerOpen, setDrawerOpen] = React.useState(false);
+  const isMobile = useIsMobile()
+  const [staffList, setStaffList] = React.useState<TeamMemberRow[]>([])
+  const [loading, setLoading] = React.useState(true)
+  const [loadError, setLoadError] = React.useState<string | null>(null)
+  const [selectedStaffId, setSelectedStaffId] = React.useState("")
+  const [input, setInput] = React.useState("")
+  const [drawerOpen, setDrawerOpen] = React.useState(false)
 
-  const { messages, isTyping, onlineMap, sendMessage, emitTyping } =
-    useAdminStaffChat(selectedStaffId);
+  const { messages, isTyping, onlineMap, sendMessage, emitTyping } = useAdminStaffChat(selectedStaffId)
 
-  const endRef = React.useRef<HTMLDivElement>(null);
+  const endRef = React.useRef<HTMLDivElement>(null)
 
   const fetchStaffList = React.useCallback(async () => {
-    setLoading(true);
-    setLoadError(null);
+    setLoading(true)
+    setLoadError(null)
     try {
-      const rows = await teamChatApi.listTeamMembers(3, { suppressErrorToast: true });
-      setStaffList(rows);
+      const rows = await teamChatApi.listTeamMembers(3, { suppressErrorToast: true })
+      setStaffList(rows)
     } catch (e) {
-      setStaffList([]);
-      setLoadError(normalizeApiError(e as AxiosError<unknown>).message);
+      setStaffList([])
+      setLoadError(normalizeApiError(e as AxiosError<unknown>).message)
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  }, []);
+  }, [])
 
   React.useEffect(() => {
-    void fetchStaffList();
-  }, [fetchStaffList]);
+    void fetchStaffList()
+  }, [fetchStaffList])
 
   React.useEffect(() => {
-    endRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages, isTyping]);
+    endRef.current?.scrollIntoView({ behavior: "smooth" })
+  }, [messages, isTyping])
 
   const selected = React.useMemo(
     () => staffList.find((s) => String(s.userId) === String(selectedStaffId)),
-    [staffList, selectedStaffId]
-  );
+    [staffList, selectedStaffId],
+  )
 
   const onSend = () => {
-    const t = input.trim();
-    if (!t) return;
-    if (sendMessage(t)) setInput("");
-  };
+    const t = input.trim()
+    if (!t) return
+    if (sendMessage(t)) setInput("")
+  }
 
   const staffPanel = (
     <div className="flex h-full min-h-0 flex-col">
@@ -83,18 +82,18 @@ export const AdminStaffMessagesPage = () => {
         {!loading &&
           !loadError &&
           staffList.map((s) => {
-            const active = String(s.userId) === String(selectedStaffId);
+            const active = String(s.userId) === String(selectedStaffId)
             return (
               <button
                 key={s.userId}
                 type="button"
                 onClick={() => {
-                  setSelectedStaffId(String(s.userId));
-                  setDrawerOpen(false);
+                  setSelectedStaffId(String(s.userId))
+                  setDrawerOpen(false)
                 }}
                 className={cn(
                   "mb-1 flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left text-sm transition-colors",
-                  active ? "bg-muted" : "hover:bg-muted/60"
+                  active ? "bg-muted" : "hover:bg-muted/60",
                 )}
               >
                 <div className="relative shrink-0">
@@ -110,7 +109,7 @@ export const AdminStaffMessagesPage = () => {
                   <div className="truncate text-xs text-muted-foreground">{s.email}</div>
                 </div>
               </button>
-            );
+            )
           })}
         {!loading && !loadError && staffList.length === 0 && (
           <div className="space-y-2 px-2 py-4 text-xs text-muted-foreground">
@@ -118,7 +117,12 @@ export const AdminStaffMessagesPage = () => {
             <p className="text-[11px] leading-relaxed">
               Thêm nhân viên trong mục quản trị người dùng, rồi tải lại trang.
             </p>
-            <Button type="text" size="small" className="h-8 gap-1.5 px-2" onClick={() => void fetchStaffList()}>
+            <Button
+              type="text"
+              size="small"
+              className="h-8 gap-1.5 px-2"
+              onClick={() => void fetchStaffList()}
+            >
               <RefreshCw className="h-3.5 w-3.5" />
               Tải lại
             </Button>
@@ -126,7 +130,7 @@ export const AdminStaffMessagesPage = () => {
         )}
       </div>
     </div>
-  );
+  )
 
   return (
     <div className="flex h-[calc(100vh-3.5rem)] min-h-[420px] w-full overflow-hidden rounded-xl border border-border bg-card">
@@ -135,13 +139,15 @@ export const AdminStaffMessagesPage = () => {
           open={drawerOpen}
           onClose={() => setDrawerOpen(false)}
           placement="left"
-          width={320}
+          size="default"
           styles={{ body: { padding: 0 } }}
         >
           <div className="h-full border-r border-border bg-muted/30">{staffPanel}</div>
         </Drawer>
       ) : (
-        <div className="flex w-[280px] shrink-0 flex-col border-r border-border bg-muted/30">{staffPanel}</div>
+        <div className="flex w-[280px] shrink-0 flex-col border-r border-border bg-muted/30">
+          {staffPanel}
+        </div>
       )}
 
       <div className="flex min-w-0 flex-1 flex-col bg-background">
@@ -158,7 +164,9 @@ export const AdminStaffMessagesPage = () => {
                   {(selected?.name?.[0] ?? selectedStaffId[0] ?? "S").toUpperCase()}
                 </div>
                 <div className="min-w-0">
-                  <div className="truncate font-semibold">{selected?.name || `Staff #${selectedStaffId}`}</div>
+                  <div className="truncate font-semibold">
+                    {selected?.name || `Staff #${selectedStaffId}`}
+                  </div>
                   <div className="text-xs text-muted-foreground">
                     {onlineMap[String(selectedStaffId)] ? "Đang hoạt động" : "Offline"}
                   </div>
@@ -180,12 +188,12 @@ export const AdminStaffMessagesPage = () => {
           <>
             <div className="min-h-0 flex-1 overflow-y-auto p-4">
               {messages.map((m, idx) => {
-                const fromRole = String(m.from?.role ?? "");
+                const fromRole = String(m.from?.role ?? "")
                 const content =
                   typeof m.message === "object" && m.message && "content" in m.message
                     ? String((m.message as { content?: string }).content ?? "")
-                    : "";
-                const mine = fromRole === "admin";
+                    : ""
+                const mine = fromRole === "admin"
                 return (
                   <motion.div
                     key={`${idx}-${m.ts}`}
@@ -203,13 +211,13 @@ export const AdminStaffMessagesPage = () => {
                         "max-w-[75%] rounded-2xl px-4 py-2 text-sm shadow-sm",
                         mine
                           ? "rounded-tr-sm bg-primary text-primary-foreground"
-                          : "rounded-tl-sm border border-border bg-muted/50"
+                          : "rounded-tl-sm border border-border bg-muted/50",
                       )}
                     >
                       {content}
                     </div>
                   </motion.div>
-                );
+                )
               })}
               <AnimatePresence>
                 {isTyping && (
@@ -236,11 +244,11 @@ export const AdminStaffMessagesPage = () => {
                 <Input
                   value={input}
                   onChange={(e) => {
-                    setInput(e.target.value);
-                    emitTyping();
+                    setInput(e.target.value)
+                    emitTyping()
                   }}
                   onKeyDown={(e) => {
-                    if (e.key === "Enter") onSend();
+                    if (e.key === "Enter") onSend()
                   }}
                   placeholder="Nhắn cho nhân viên…"
                   className="flex-1"
@@ -260,5 +268,5 @@ export const AdminStaffMessagesPage = () => {
         )}
       </div>
     </div>
-  );
+  )
 }

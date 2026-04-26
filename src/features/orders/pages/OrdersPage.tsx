@@ -1,159 +1,163 @@
-import { useCallback, useEffect, useState } from "react";
-import { Button, Card, Drawer, Grid, Input, Pagination, Skeleton, Space, Table, Tag } from "antd";
-import type { PaginationProps } from "antd";
-import type { ColumnsType, TablePaginationConfig } from "antd/es/table";
-import dayjs from "dayjs";
-import { toast } from "sonner";
+import { useCallback, useEffect, useState } from "react"
+import { Button, Card, Drawer, Grid, Input, Pagination, Skeleton, Space, Table, Tag } from "antd"
+import type { PaginationProps } from "antd"
+import type { ColumnsType, TablePaginationConfig } from "antd/es/table"
+import dayjs from "dayjs"
+import { toast } from "sonner"
+import { useTranslation } from "react-i18next"
 
-import { orderApi } from "@/api/orderApi";
-import { mapOrdersToRows, type BackendOrder, type OrderRow } from "@/features/orders/model/normalizeOrder";
+import { orderApi } from "@/api/orderApi"
+import { mapOrdersToRows, type BackendOrder, type OrderRow } from "@/features/orders/model/normalizeOrder"
 
-const { Search } = Input;
+const { Search } = Input
 
-type OrdersApiResponse = { data?: unknown } | Record<string, unknown>;
+type OrdersApiResponse = { data?: unknown } | Record<string, unknown>
 
-let didLogFirstOrderPayload = false;
+let didLogFirstOrderPayload = false
 
 const extractOrders = (response: OrdersApiResponse): BackendOrder[] => {
-  const data = (response as { data?: unknown }).data ?? response;
-  const payload = data as Record<string, unknown>;
+  const data = (response as { data?: unknown }).data ?? response
+  const payload = data as Record<string, unknown>
 
   // `orderApi.getOrders()` may return multiple list keys depending on legacy backend shapes.
-  const candidates = [payload.orders, payload.data, payload.results];
-  const listCandidate = candidates.find((candidate) => Array.isArray(candidate));
-  return Array.isArray(listCandidate) ? (listCandidate as BackendOrder[]) : [];
-};
+  const candidates = [payload.orders, payload.data, payload.results]
+  const listCandidate = candidates.find((candidate) => Array.isArray(candidate))
+  return Array.isArray(listCandidate) ? (listCandidate as BackendOrder[]) : []
+}
 
 const extractTotal = (response: OrdersApiResponse, listLength: number): number => {
-  const data = (response as { data?: unknown }).data ?? response;
-  const payload = data as Record<string, unknown>;
-  return typeof payload.total === "number" ? payload.total : listLength;
-};
+  const data = (response as { data?: unknown }).data ?? response
+  const payload = data as Record<string, unknown>
+  return typeof payload.total === "number" ? payload.total : listLength
+}
 
 /** Backend stores amounts in VND (whole numbers). */
-function formatVnd(value: number | undefined | null): string {
-  const n = Number(value);
-  if (!Number.isFinite(n)) return "—";
+const formatVnd = (value: number | undefined | null): string => {
+  const n = Number(value)
+  if (!Number.isFinite(n)) return "—"
   return new Intl.NumberFormat("vi-VN", {
     style: "currency",
     currency: "VND",
     maximumFractionDigits: 0,
-  }).format(n);
+  }).format(n)
 }
 
 export const OrdersPage = () => {
-  const screens = Grid.useBreakpoint();
-  const isMobile = !screens.md;
-  const [loading, setLoading] = useState(false);
-  const [orders, setOrders] = useState<OrderRow[]>([]);
-  const [page, setPage] = useState(1);
-  const [pageSize, setPageSize] = useState(10);
-  const [total, setTotal] = useState(0);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [selectedOrder, setSelectedOrder] = useState<OrderRow | null>(null);
-  const [detailsOpen, setDetailsOpen] = useState(false);
+  const { t } = useTranslation()
+  const screens = Grid.useBreakpoint()
+  const isMobile = !screens.md
+  const [loading, setLoading] = useState(false)
+  const [orders, setOrders] = useState<OrderRow[]>([])
+  const [page, setPage] = useState(1)
+  const [pageSize, setPageSize] = useState(10)
+  const [total, setTotal] = useState(0)
+  const [searchTerm, setSearchTerm] = useState("")
+  const [selectedOrder, setSelectedOrder] = useState<OrderRow | null>(null)
+  const [detailsOpen, setDetailsOpen] = useState(false)
 
   const fetchOrders = useCallback(
     async (pageParam = page, pageSizeParam = pageSize, searchParam: string = searchTerm) => {
       try {
-        setLoading(true);
+        setLoading(true)
         const res = await orderApi.getOrders({
           page: pageParam,
           limit: pageSizeParam,
           search: searchParam || undefined,
-        });
+        })
 
-        const list = extractOrders(res);
+        const list = extractOrders(res)
         if (import.meta.env.DEV && !didLogFirstOrderPayload && list.length > 0) {
-          didLogFirstOrderPayload = true;
-          const first = list[0] as Record<string, unknown>;
-          console.debug("[OrdersPage] First order payload sample:", first);
-          console.debug("[OrdersPage] First order payload keys:", Object.keys(first));
+          didLogFirstOrderPayload = true
+          const first = list[0] as Record<string, unknown>
+          console.debug("[OrdersPage] First order payload sample:", first)
+          console.debug("[OrdersPage] First order payload keys:", Object.keys(first))
         }
-        setTotal(extractTotal(res, list.length));
-        setOrders(mapOrdersToRows(list));
+        setTotal(extractTotal(res, list.length))
+        setOrders(mapOrdersToRows(list))
       } catch {
-        toast.error("Failed to fetch orders");
+        toast.error("Failed to fetch orders")
       } finally {
-        setLoading(false);
+        setLoading(false)
       }
     },
-    [page, pageSize, searchTerm]
-  );
+    [page, pageSize, searchTerm],
+  )
 
   useEffect(() => {
-    void fetchOrders(1, pageSize);
-  }, [fetchOrders, pageSize]);
+    void fetchOrders(1, pageSize)
+  }, [fetchOrders, pageSize])
 
   const handleTableChange = (pagination: TablePaginationConfig) => {
-    const current = pagination.current || 1;
-    const size = pagination.pageSize || 10;
-    setPage(current);
-    setPageSize(size);
-    void fetchOrders(current, size);
-  };
+    const current = pagination.current || 1
+    const size = pagination.pageSize || 10
+    setPage(current)
+    setPageSize(size)
+    void fetchOrders(current, size)
+  }
 
   const handleSearch = (value: string) => {
-    setSearchTerm(value);
-    setPage(1);
-    void fetchOrders(1, pageSize, value);
-  };
+    setSearchTerm(value)
+    setPage(1)
+    void fetchOrders(1, pageSize, value)
+  }
 
   const handleView = (record: OrderRow) => {
-    setSelectedOrder(record);
-    setDetailsOpen(true);
-  };
+    setSelectedOrder(record)
+    setDetailsOpen(true)
+  }
 
   const columns: ColumnsType<OrderRow> = [
     {
-      title: "Customer",
+      title: t("orders.fieldCustomer"),
       dataIndex: "customer",
     },
     {
-      title: "Total (VND)",
+      title: t("orders.fieldTotal"),
       dataIndex: "totalPrice",
       render: (value: number) => formatVnd(value),
     },
     {
-      title: "Status",
+      title: t("orders.fieldStatus"),
       render: (_, record) => (
         <Space size="small">
           <Tag color={record.isPaid ? "green" : "orange"}>
-            {record.isPaid ? "Đã thanh toán" : "Chưa thanh toán"}
+            {record.isPaid ? t("orders.paid") : t("orders.unpaid")}
           </Tag>
-          <Tag color={record.isDelivered ? "blue" : "default"}>{record.isDelivered ? "Đã giao" : "Chưa giao"}</Tag>
+          <Tag color={record.isDelivered ? "blue" : "default"}>
+            {record.isDelivered ? t("orders.delivered") : t("orders.undelivered")}
+          </Tag>
         </Space>
       ),
     },
     {
-      title: "Date",
+      title: t("orders.date"),
       dataIndex: "date",
       render: (value: string) => dayjs(value).format("YYYY-MM-DD HH:mm"),
     },
     {
-      title: "Actions",
+      title: t("common.actions"),
       key: "actions",
       render: (_, record) => (
         <Space size="small">
           <Button size="small" onClick={() => handleView(record)}>
-            View
+            {t("orders.view")}
           </Button>
         </Space>
       ),
     },
-  ];
+  ]
 
-  const pagination: PaginationProps = { current: page, pageSize, total, showSizeChanger: true };
+  const pagination: PaginationProps = { current: page, pageSize, total, showSizeChanger: true }
 
   return (
     <div className="space-y-4">
       <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
         <div>
-          <h2 className="text-2xl font-bold tracking-tight">Orders</h2>
-          <p className="text-muted-foreground">Manage and view all customer orders.</p>
+          <h2 className="text-2xl font-bold tracking-tight">{t("orders.title")}</h2>
+          <p className="text-muted-foreground">{t("orders.subtitle")}</p>
         </div>
         <Search
-          placeholder="Search by customer or ID"
+          placeholder={t("orders.searchPlaceholder")}
           onSearch={handleSearch}
           allowClear
           style={{ maxWidth: 280 }}
@@ -170,7 +174,7 @@ export const OrdersPage = () => {
             </>
           ) : orders.length === 0 ? (
             <div className="rounded-lg border border-border/50 bg-muted/20 p-6 text-center text-sm text-muted-foreground">
-              No orders found
+              {t("orders.noOrders")}
             </div>
           ) : (
             orders.map((o) => (
@@ -182,8 +186,12 @@ export const OrdersPage = () => {
                   </div>
                   <div className="shrink-0 text-right">
                     <Space size="small" direction="vertical">
-                      <Tag color={o.isPaid ? "green" : "orange"}>{o.isPaid ? "Đã thanh toán" : "Chưa thanh toán"}</Tag>
-                      <Tag color={o.isDelivered ? "blue" : "default"}>{o.isDelivered ? "Đã giao" : "Chưa giao"}</Tag>
+                      <Tag color={o.isPaid ? "green" : "orange"}>
+                        {o.isPaid ? t("orders.paid") : t("orders.unpaid")}
+                      </Tag>
+                      <Tag color={o.isDelivered ? "blue" : "default"}>
+                        {o.isDelivered ? t("orders.delivered") : t("orders.undelivered")}
+                      </Tag>
                     </Space>
                   </div>
                 </div>
@@ -194,7 +202,7 @@ export const OrdersPage = () => {
 
                 <div className="mt-3 flex flex-wrap items-center gap-2">
                   <Button size="small" onClick={() => handleView(o)}>
-                    View
+                    {t("orders.view")}
                   </Button>
                 </div>
               </Card>
@@ -208,10 +216,10 @@ export const OrdersPage = () => {
               total={total}
               showSizeChanger
               onChange={(p, ps) => {
-                const size = ps || pageSize;
-                setPage(p);
-                setPageSize(size);
-                void fetchOrders(p, size);
+                const size = ps || pageSize
+                setPage(p)
+                setPageSize(size)
+                void fetchOrders(p, size)
               }}
             />
           </div>
@@ -227,38 +235,44 @@ export const OrdersPage = () => {
         />
       )}
 
-      <Drawer title="Order details" size="default" open={detailsOpen} onClose={() => setDetailsOpen(false)}>
+      <Drawer
+        title={t("orders.detailsTitle")}
+        size="default"
+        open={detailsOpen}
+        onClose={() => setDetailsOpen(false)}
+      >
         {selectedOrder && (
           <div className="space-y-3">
             <div>
-              <div className="text-sm text-muted-foreground">Order ID</div>
+              <div className="text-sm text-muted-foreground">{t("orders.fieldOrderId")}</div>
               <div className="font-mono text-sm">{selectedOrder.id}</div>
             </div>
             <div>
-              <div className="text-sm text-muted-foreground">Customer</div>
+              <div className="text-sm text-muted-foreground">{t("orders.fieldCustomer")}</div>
               <div>{selectedOrder.customer}</div>
             </div>
             <div>
-              <div className="text-sm text-muted-foreground">Total (VND)</div>
+              <div className="text-sm text-muted-foreground">{t("orders.fieldTotal")}</div>
               <div>{formatVnd(selectedOrder.totalPrice)}</div>
             </div>
             <div>
-              <div className="text-sm text-muted-foreground">Status</div>
+              <div className="text-sm text-muted-foreground">{t("orders.fieldStatus")}</div>
               <Space size="small">
                 <Tag color={selectedOrder.isPaid ? "green" : "orange"}>
-                  {selectedOrder.isPaid ? "Đã thanh toán" : "Chưa thanh toán"}
+                  {selectedOrder.isPaid ? t("orders.paid") : t("orders.unpaid")}
                 </Tag>
-                <Tag color={selectedOrder.isDelivered ? "blue" : "default"}>{selectedOrder.isDelivered ? "Đã giao" : "Chưa giao"}</Tag>
+                <Tag color={selectedOrder.isDelivered ? "blue" : "default"}>
+                  {selectedOrder.isDelivered ? t("orders.delivered") : t("orders.undelivered")}
+                </Tag>
               </Space>
             </div>
             <div>
-              <div className="text-sm text-muted-foreground">Created at</div>
+              <div className="text-sm text-muted-foreground">{t("orders.fieldCreatedAt")}</div>
               <div>{dayjs(selectedOrder.date).format("YYYY-MM-DD HH:mm")}</div>
             </div>
           </div>
         )}
       </Drawer>
     </div>
-  );
-};
-
+  )
+}

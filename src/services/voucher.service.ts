@@ -1,4 +1,4 @@
-import { api } from "@/services/api"
+import { api } from "@/api"
 import { unwrapApiData } from "@/utils/apiResponse"
 
 export type VoucherDiscountType = "percentage" | "fixed"
@@ -68,4 +68,3 @@ export const voucherService = {
     return unwrapApiData<PromoVoucher>(res.data)
   },
 }
-

@@ -1,24 +1,15 @@
 "use client"
 
 import * as React from "react"
-import {
-  Search,
-  Phone,
-  Video,
-  Info,
-  Paperclip,
-  Smile,
-  Mic,
-  Send,
-} from "lucide-react"
-import { cn } from "@/lib/utils"
+import { Search, Phone, Video, Info, Paperclip, Smile, Mic, Send } from "lucide-react"
+import { cn } from "@/utils/utils"
 import { Avatar, Button, Input } from "antd"
 import type { Conversation } from "@/types/chat"
 import { useChat } from "@/hooks/useChat"
 import { StaffRoleBadge } from "@/components/chat/StaffRoleBadge"
 import { isStaffRoleId } from "@/components/chat/staffRole"
 
-function getInitials(name: string) {
+const getInitials = (name: string) => {
   return name
     .split(" ")
     .map((n) => n[0])
@@ -27,12 +18,12 @@ function getInitials(name: string) {
     .slice(0, 2)
 }
 
-function getStatusLabel(conv: Conversation): string {
+const getStatusLabel = (conv: Conversation): string => {
   if (conv.status === "away") return "Away"
   return conv.online ? "Online" : "Offline"
 }
 
-function getStatusClass(conv: Conversation): string {
+const getStatusClass = (conv: Conversation): string => {
   if (conv.status === "away") return "bg-amber-500"
   return conv.online ? "bg-emerald-500" : "bg-muted-foreground"
 }
@@ -41,7 +32,7 @@ export interface ChatAreaProps {
   conversation: Conversation | null
 }
 
-export function ChatArea({ conversation }: ChatAreaProps) {
+export const ChatArea = ({ conversation }: ChatAreaProps) => {
   const [input, setInput] = React.useState("")
   const { messages, sendMessage, loading } = useChat(conversation?.id ?? null)
 
@@ -79,9 +70,7 @@ export function ChatArea({ conversation }: ChatAreaProps) {
               {isStaffRoleId(conversation.peerRoleId) && <StaffRoleBadge />}
             </div>
             <p className="flex items-center gap-1.5 text-xs text-muted-foreground">
-              <span
-                className={cn("h-2 w-2 rounded-full shrink-0", getStatusClass(conversation))}
-              />
+              <span className={cn("h-2 w-2 rounded-full shrink-0", getStatusClass(conversation))} />
               {getStatusLabel(conversation)}
             </p>
           </div>
@@ -113,19 +102,13 @@ export function ChatArea({ conversation }: ChatAreaProps) {
         ) : (
           <div className="flex w-full flex-col gap-4 pb-6">
             {messages.map((msg) => (
-              <div
-                key={msg.id}
-                className={cn(
-                  "flex",
-                  msg.isOutgoing ? "justify-end" : "justify-start"
-                )}
-              >
+              <div key={msg.id} className={cn("flex", msg.isOutgoing ? "justify-end" : "justify-start")}>
                 <div
                   className={cn(
-                    "max-w-[92%] min-w-0 rounded-2xl px-4 py-2 overflow-hidden break-words",
+                    "max-w-[92%] min-w-0 rounded-2xl px-4 py-2 overflow-hidden wrap-break-word",
                     msg.isOutgoing
                       ? "rounded-br-md bg-primary text-primary-foreground"
-                      : "rounded-bl-md bg-muted text-foreground"
+                      : "rounded-bl-md bg-muted text-foreground",
                   )}
                 >
                   {isStaffRoleId(msg.senderRoleId) && (
@@ -139,10 +122,8 @@ export function ChatArea({ conversation }: ChatAreaProps) {
                       />
                     </div>
                   )}
-                  <p className="text-sm break-words">{msg.text}</p>
-                  <p className="mt-1 text-xs opacity-80 shrink-0">
-                    {msg.timestamp}
-                  </p>
+                  <p className="text-sm wrap-break-word">{msg.text}</p>
+                  <p className="mt-1 text-xs opacity-80 shrink-0">{msg.timestamp}</p>
                 </div>
               </div>
             ))}

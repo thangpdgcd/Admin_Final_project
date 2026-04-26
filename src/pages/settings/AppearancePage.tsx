@@ -1,17 +1,15 @@
-import { Button, Card, Switch, Typography } from "antd";
-import { useTheme } from "next-themes";
+import { Button, Card, Switch, Typography } from "antd"
+import { useTheme } from "next-themes"
 
-export function AppearancePage() {
-  const { theme, setTheme } = useTheme();
-  const isDark = theme === "dark";
+export const AppearancePage = () => {
+  const { theme, setTheme } = useTheme()
+  const isDark = theme === "dark"
 
   return (
     <div className="space-y-6">
       <div className="space-y-1">
         <h2 className="text-2xl font-bold tracking-tight">Appearance</h2>
-        <p className="text-muted-foreground">
-          Customize how the admin dashboard looks and feels.
-        </p>
+        <p className="text-muted-foreground">Customize how the admin dashboard looks and feels.</p>
       </div>
 
       <div className="grid gap-6 lg:grid-cols-[minmax(0,1.6fr),minmax(0,1.2fr)]">
@@ -23,17 +21,12 @@ export function AppearancePage() {
           <div className="mt-4 space-y-4">
             <div className="flex items-center justify-between gap-4 rounded-lg border border-border/60 bg-muted/40 p-4">
               <div>
-                <p className="text-sm font-medium">
-                  {isDark ? "Dark mode" : "Light mode"}
-                </p>
+                <p className="text-sm font-medium">{isDark ? "Dark mode" : "Light mode"}</p>
                 <p className="text-xs text-muted-foreground">
                   Toggle the global color scheme for this dashboard.
                 </p>
               </div>
-              <Button
-                size="small"
-                onClick={() => setTheme(isDark ? "light" : "dark")}
-              >
+              <Button size="small" onClick={() => setTheme(isDark ? "light" : "dark")}>
                 Use {isDark ? "light" : "dark"} mode
               </Button>
             </div>
@@ -70,6 +63,5 @@ export function AppearancePage() {
         </Card>
       </div>
     </div>
-  );
+  )
 }
-

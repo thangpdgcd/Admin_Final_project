@@ -14,13 +14,15 @@ const chartData = [
 const formatVnd = (n: number) =>
   new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND", maximumFractionDigits: 0 }).format(n)
 
-export function RevenueBreakdown() {
+export const RevenueBreakdown = () => {
   const total = chartData.reduce((sum, item) => sum + item.revenue, 0)
 
   return (
     <Card className="rounded-xl border border-border/50 shadow-sm">
       <div className="space-y-1">
-        <Typography.Title level={5} className="mb-0!">Revenue Breakdown</Typography.Title>
+        <Typography.Title level={5} className="mb-0!">
+          Revenue Breakdown
+        </Typography.Title>
         <Typography.Text type="secondary">Revenue distribution by source</Typography.Text>
       </div>
       <div className="mt-4">
@@ -56,24 +58,14 @@ export function RevenueBreakdown() {
             {chartData.map((item) => {
               const pct = total ? ((item.revenue / total) * 100).toFixed(1) : "0"
               return (
-                <div
-                  key={item.source}
-                  className="flex items-center justify-between gap-4"
-                >
+                <div key={item.source} className="flex items-center justify-between gap-4">
                   <div className="flex items-center gap-2">
-                    <div
-                      className="h-3 w-3 rounded-sm shrink-0"
-                      style={{ backgroundColor: item.fill }}
-                    />
+                    <div className="h-3 w-3 rounded-sm shrink-0" style={{ backgroundColor: item.fill }} />
                     <span className="text-sm font-medium">{item.source}</span>
                   </div>
                   <div className="flex items-center gap-4 text-right">
-                    <span className="text-sm font-medium tabular-nums">
-                      {formatVnd(item.revenue)}
-                    </span>
-                    <span className="text-xs text-muted-foreground w-12">
-                      {pct}%
-                    </span>
+                    <span className="text-sm font-medium tabular-nums">{formatVnd(item.revenue)}</span>
+                    <span className="text-xs text-muted-foreground w-12">{pct}%</span>
                   </div>
                 </div>
               )

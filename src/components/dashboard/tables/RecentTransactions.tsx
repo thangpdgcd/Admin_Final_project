@@ -1,9 +1,6 @@
 "use client"
 
-import {
-  Card,
-  Typography,
-} from "antd"
+import { Card, Typography } from "antd"
 import { TransactionList, type Transaction } from "./TransactionList"
 
 const mockTransactions: Transaction[] = [
@@ -49,11 +46,13 @@ const mockTransactions: Transaction[] = [
   },
 ]
 
-export function RecentTransactions() {
+export const RecentTransactions = () => {
   return (
     <Card className="rounded-xl border border-border/50 bg-card/95 shadow-sm backdrop-blur-sm">
       <div className="space-y-1">
-        <Typography.Title level={5} className="mb-0!">Recent Transactions</Typography.Title>
+        <Typography.Title level={5} className="mb-0!">
+          Recent Transactions
+        </Typography.Title>
         <Typography.Text type="secondary">Latest customer transactions</Typography.Text>
       </div>
       <div className="mt-4">

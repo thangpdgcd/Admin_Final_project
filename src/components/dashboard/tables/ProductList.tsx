@@ -1,7 +1,7 @@
 "use client"
 
 import { Star } from "lucide-react"
-import { cn } from "@/lib/utils"
+import { cn } from "@/utils/utils"
 import { Progress, Tag } from "antd"
 
 export interface Product {
@@ -22,7 +22,7 @@ export interface ProductListProps {
   className?: string
 }
 
-export function ProductList({ products, className }: ProductListProps) {
+export const ProductList = ({ products, className }: ProductListProps) => {
   return (
     <div className={cn("space-y-4", className)}>
       {products.map((product) => (
@@ -61,15 +61,14 @@ export function ProductList({ products, className }: ProductListProps) {
                   {product.stock}/{product.maxStock}
                 </span>
               </div>
-              <Progress
-                percent={(product.stock / product.maxStock) * 100}
-                showInfo={false}
-              />
+              <Progress percent={(product.stock / product.maxStock) * 100} showInfo={false} />
             </div>
             <span
               className={cn(
                 "text-sm font-medium shrink-0 tabular-nums",
-                product.growth >= 0 ? "text-emerald-600 dark:text-emerald-400" : "text-red-600 dark:text-red-400"
+                product.growth >= 0
+                  ? "text-emerald-600 dark:text-emerald-400"
+                  : "text-red-600 dark:text-red-400",
               )}
             >
               {product.growth >= 0 ? "+" : ""}

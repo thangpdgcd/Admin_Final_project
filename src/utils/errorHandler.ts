@@ -1,1 +1,1 @@
-export * from "@/shared/utils/errors";
+export * from "@/utils/errors"

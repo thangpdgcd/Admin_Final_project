@@ -1,13 +1,11 @@
-import { Button, Card, Checkbox, Typography } from "antd";
+import { Button, Card, Checkbox, Typography } from "antd"
 
-export function NotificationsSettingsPage() {
+export const NotificationsSettingsPage = () => {
   return (
     <div className="space-y-6">
       <div className="space-y-1">
         <h2 className="text-2xl font-bold tracking-tight">Notifications</h2>
-        <p className="text-muted-foreground">
-          Control when and how you receive updates about your store.
-        </p>
+        <p className="text-muted-foreground">Control when and how you receive updates about your store.</p>
       </div>
 
       <Card className="max-w-3xl border border-border/60 bg-card/95 shadow-sm backdrop-blur-sm">
@@ -52,14 +50,13 @@ export function NotificationsSettingsPage() {
             </label>
           </div>
           <div className="flex justify-end gap-2 pt-2">
-            <Button size="small">
-              Cancel
+            <Button size="small">Cancel</Button>
+            <Button type="primary" size="small">
+              Save changes
             </Button>
-            <Button type="primary" size="small">Save changes</Button>
           </div>
         </div>
       </Card>
     </div>
-  );
+  )
 }
-

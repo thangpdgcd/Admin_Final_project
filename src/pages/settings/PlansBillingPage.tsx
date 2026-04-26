@@ -1,13 +1,11 @@
-import { Badge, Button, Card, Divider, Typography } from "antd";
+import { Badge, Button, Card, Divider, Typography } from "antd"
 
-export function PlansBillingPage() {
+export const PlansBillingPage = () => {
   return (
     <div className="space-y-6">
       <div className="space-y-1">
         <h2 className="text-2xl font-bold tracking-tight">Plans &amp; Billing</h2>
-        <p className="text-muted-foreground">
-          Manage your subscription, invoices, and payment methods.
-        </p>
+        <p className="text-muted-foreground">Manage your subscription, invoices, and payment methods.</p>
       </div>
 
       <div className="grid gap-6 lg:grid-cols-[minmax(0,1.6fr),minmax(0,1.2fr)]">
@@ -44,10 +42,10 @@ export function PlansBillingPage() {
               </ul>
             </div>
             <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-muted-foreground">
-              <p>Next invoice on <span className="font-medium">May 1, 2026</span>.</p>
-              <Button size="small">
-                Change plan
-              </Button>
+              <p>
+                Next invoice on <span className="font-medium">May 1, 2026</span>.
+              </p>
+              <Button size="small">Change plan</Button>
             </div>
           </div>
         </Card>
@@ -55,7 +53,9 @@ export function PlansBillingPage() {
         <Card className="border border-border/60 bg-card/95 shadow-sm backdrop-blur-sm">
           <div className="space-y-1">
             <Typography.Text strong>Billing details</Typography.Text>
-            <Typography.Text type="secondary">Invoices and payment methods for this workspace.</Typography.Text>
+            <Typography.Text type="secondary">
+              Invoices and payment methods for this workspace.
+            </Typography.Text>
           </div>
           <div className="mt-4 space-y-4 text-sm">
             <div className="space-y-1">
@@ -68,7 +68,8 @@ export function PlansBillingPage() {
             <div className="space-y-1">
               <p className="font-medium">Invoices</p>
               <p className="text-muted-foreground">
-                When connected to the ecommerce backend&apos;s Stripe configuration, invoices will appear here.
+                When connected to the ecommerce backend&apos;s Stripe configuration, invoices will appear
+                here.
               </p>
             </div>
             <Divider className="my-2" />
@@ -79,6 +80,5 @@ export function PlansBillingPage() {
         </Card>
       </div>
     </div>
-  );
+  )
 }
-

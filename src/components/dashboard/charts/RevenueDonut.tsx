@@ -15,13 +15,15 @@ const chartData = [
 const formatVnd = (n: number) =>
   new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND", maximumFractionDigits: 0 }).format(n)
 
-export function RevenueDonut() {
+export const RevenueDonut = () => {
   const total = chartData.reduce((sum, item) => sum + item.revenue, 0)
 
   return (
     <Card className="rounded-xl border border-border/50 bg-card/95 shadow-sm backdrop-blur-sm">
       <div className="space-y-1">
-        <Typography.Title level={5} className="mb-0!">Revenue Breakdown</Typography.Title>
+        <Typography.Title level={5} className="mb-0!">
+          Revenue Breakdown
+        </Typography.Title>
         <Typography.Text type="secondary">Revenue distribution by category</Typography.Text>
       </div>
       <div className="mx-auto mt-4 h-[300px] w-full">

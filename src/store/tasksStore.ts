@@ -1,25 +1,25 @@
-import { create } from "zustand";
-import { persist } from "zustand/middleware";
+import { create } from "zustand"
+import { persist } from "zustand/middleware"
 
-export type TaskStatus = "todo" | "in_progress" | "done";
-export type TaskPriority = "low" | "medium" | "high";
+export type TaskStatus = "todo" | "in_progress" | "done"
+export type TaskPriority = "low" | "medium" | "high"
 
 export interface Task {
-  id: string;
-  name: string;
-  status: TaskStatus;
-  priority: TaskPriority;
-  dueDate?: string;
-  assignedTo?: string;
-  description?: string;
+  id: string
+  name: string
+  status: TaskStatus
+  priority: TaskPriority
+  dueDate?: string
+  assignedTo?: string
+  description?: string
 }
 
 interface TasksState {
-  tasks: Task[];
-  addTask: (task: Omit<Task, "id">) => void;
-  updateTask: (id: string, updates: Partial<Task>) => void;
-  deleteTask: (id: string) => void;
-  toggleComplete: (id: string) => void;
+  tasks: Task[]
+  addTask: (task: Omit<Task, "id">) => void
+  updateTask: (id: string, updates: Partial<Task>) => void
+  deleteTask: (id: string) => void
+  toggleComplete: (id: string) => void
 }
 
 export const useTasksStore = create<TasksState>()(
@@ -38,9 +38,7 @@ export const useTasksStore = create<TasksState>()(
         })),
       updateTask: (id, updates) =>
         set((state) => ({
-          tasks: state.tasks.map((t) =>
-            t.id === id ? { ...t, ...updates } : t
-          ),
+          tasks: state.tasks.map((t) => (t.id === id ? { ...t, ...updates } : t)),
         })),
       deleteTask: (id) =>
         set((state) => ({
@@ -54,13 +52,12 @@ export const useTasksStore = create<TasksState>()(
                   ...t,
                   status: t.status === "done" ? "todo" : "done",
                 }
-              : t
+              : t,
           ),
         })),
     }),
     {
       name: "tasks-store",
-    }
-  )
-);
-
+    },
+  ),
+)

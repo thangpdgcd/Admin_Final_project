@@ -2,7 +2,7 @@
 
 import { ChevronLeft, ChevronRight, Search } from "lucide-react"
 import { Button, Input } from "antd"
-import { cn } from "@/lib/utils"
+import { cn } from "@/utils/utils"
 
 const WEEKDAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
 
@@ -72,11 +72,7 @@ export interface CalendarGridProps {
   className?: string
 }
 
-export function CalendarGrid({
-  currentDate,
-  onDateChange,
-  className,
-}: CalendarGridProps) {
+export const CalendarGrid = ({ currentDate, onDateChange, className }: CalendarGridProps) => {
   const year = currentDate.getFullYear()
   const month = currentDate.getMonth()
   const today = new Date()
@@ -97,10 +93,7 @@ export function CalendarGrid({
 
   const eventsForDate = (d: number) =>
     MOCK_EVENTS.filter(
-      (e) =>
-        e.date.getFullYear() === year &&
-        e.date.getMonth() === month &&
-        e.date.getDate() === d
+      (e) => e.date.getFullYear() === year && e.date.getMonth() === month && e.date.getDate() === d,
     )
 
   const goPrev = () => onDateChange?.(new Date(year, month - 1, 1))
@@ -130,14 +123,9 @@ export function CalendarGrid({
         <div className="flex items-center gap-2">
           <div className="relative flex-1 md:w-48">
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-            <Input
-              placeholder="Search events"
-              className="pl-9"
-            />
+            <Input placeholder="Search events" className="pl-9" />
           </div>
-          <Button size="small">
-            Month view
-          </Button>
+          <Button size="small">Month view</Button>
         </div>
       </div>
 
@@ -152,16 +140,14 @@ export function CalendarGrid({
             </div>
           ))}
           {paddedCells.map((d, i) => {
-            const isToday =
-              d &&
-              new Date(year, month, d).getTime() === today.getTime()
+            const isToday = d && new Date(year, month, d).getTime() === today.getTime()
             const dayEvents = d ? eventsForDate(d) : []
             return (
               <div
                 key={i}
                 className={cn(
                   "min-h-[100px] border-b border-r border-border/50 p-2",
-                  (i % 7) === 6 && "border-r-0"
+                  i % 7 === 6 && "border-r-0",
                 )}
               >
                 <button
@@ -169,7 +155,7 @@ export function CalendarGrid({
                   className={cn(
                     "mb-1 flex h-7 w-7 items-center justify-center rounded-md text-sm",
                     d ? "cursor-pointer hover:bg-muted" : "cursor-default text-transparent",
-                    isToday && "bg-primary text-primary-foreground"
+                    isToday && "bg-primary text-primary-foreground",
                   )}
                   onClick={() => d && onDateChange?.(new Date(year, month, d))}
                 >
@@ -179,18 +165,13 @@ export function CalendarGrid({
                   {dayEvents.slice(0, 3).map((e) => (
                     <div
                       key={e.id}
-                      className={cn(
-                        "truncate rounded px-2 py-0.5 text-xs font-medium text-white",
-                        e.color
-                      )}
+                      className={cn("truncate rounded px-2 py-0.5 text-xs font-medium text-white", e.color)}
                     >
                       {e.title}
                     </div>
                   ))}
                   {dayEvents.length > 3 && (
-                    <p className="text-xs text-muted-foreground">
-                      +{dayEvents.length - 3} more
-                    </p>
+                    <p className="text-xs text-muted-foreground">+{dayEvents.length - 3} more</p>
                   )}
                 </div>
               </div>

@@ -1,8 +1,8 @@
-import { useAuth } from "@/hooks/useAuth";
-import { Button, Card, Input, Typography } from "antd";
+import { useAuth } from "@/hooks/useAuth"
+import { Button, Card, Input, Typography } from "antd"
 
-export function UserSettingsPage() {
-  const { user } = useAuth();
+export const UserSettingsPage = () => {
+  const { user } = useAuth()
 
   return (
     <div className="space-y-6">
@@ -41,9 +41,7 @@ export function UserSettingsPage() {
             />
           </div>
           <div className="flex justify-end gap-2">
-            <Button disabled>
-              Cancel
-            </Button>
+            <Button disabled>Cancel</Button>
             <Button type="primary" disabled>
               Save changes
             </Button>
@@ -54,6 +52,5 @@ export function UserSettingsPage() {
         </div>
       </Card>
     </div>
-  );
+  )
 }
-

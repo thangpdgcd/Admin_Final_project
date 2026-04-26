@@ -1,18 +1,18 @@
-"use client";
+"use client"
 
-import { CheckCheck } from "lucide-react";
-import { Button } from "antd";
-import type { NotificationRow } from "../model/types";
-import { NotificationItem } from "./NotificationItem";
+import { CheckCheck } from "lucide-react"
+import { Button } from "antd"
+import type { NotificationRow } from "../model/types"
+import { NotificationItem } from "./NotificationItem"
 
 export const NotificationDropdown = ({
   items,
   onItemClick,
   onMarkAllRead,
 }: {
-  items: NotificationRow[];
-  onItemClick: (n: NotificationRow) => void;
-  onMarkAllRead: () => void;
+  items: NotificationRow[]
+  onItemClick: (n: NotificationRow) => void
+  onMarkAllRead: () => void
 }) => {
   return (
     <div className="w-80 max-w-[calc(100vw-2rem)]">
@@ -36,6 +36,5 @@ export const NotificationDropdown = ({
         )}
       </div>
     </div>
-  );
-};
-
+  )
+}

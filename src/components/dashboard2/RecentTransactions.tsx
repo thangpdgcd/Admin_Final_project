@@ -48,16 +48,20 @@ const mockTransactions: Transaction[] = [
   },
 ]
 
-export function RecentTransactions() {
+export const RecentTransactions = () => {
   return (
     <Card className="rounded-xl border border-border/50 shadow-sm">
       <div className="flex flex-row items-center justify-between">
         <div className="space-y-1">
-          <Typography.Title level={5} className="mb-0!">Recent Transactions</Typography.Title>
+          <Typography.Title level={5} className="mb-0!">
+            Recent Transactions
+          </Typography.Title>
           <Typography.Text type="secondary">Latest activity from your customers</Typography.Text>
         </div>
         <Link to="/system/orders">
-          <Button type="text" size="small">View All</Button>
+          <Button type="text" size="small">
+            View All
+          </Button>
         </Link>
       </div>
       <div className="mt-4">

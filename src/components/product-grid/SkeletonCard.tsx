@@ -1,6 +1,6 @@
-import { memo } from "react";
+import { memo } from "react"
 
-export const SkeletonCard = memo(function SkeletonCard() {
+export const SkeletonCard = memo(() => {
   return (
     <div className="animate-pulse rounded-2xl border border-stone-100 bg-white p-4 shadow-sm dark:border-stone-800 dark:bg-[#1e1e1e]">
       <div className="aspect-square w-full rounded-xl bg-stone-200 dark:bg-stone-800" />
@@ -13,5 +13,5 @@ export const SkeletonCard = memo(function SkeletonCard() {
         <div className="h-9 w-9 rounded-full bg-stone-200 dark:bg-stone-800" />
       </div>
     </div>
-  );
-});
+  )
+})

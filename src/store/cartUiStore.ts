@@ -1,9 +1,9 @@
-import { create } from "zustand";
+import { create } from "zustand"
 
 interface CartUiState {
-  count: number;
-  badgePulseKey: number;
-  addOne: () => void;
+  count: number
+  badgePulseKey: number
+  addOne: () => void
 }
 
 export const useCartUiStore = create<CartUiState>((set) => ({
@@ -14,4 +14,4 @@ export const useCartUiStore = create<CartUiState>((set) => ({
       count: state.count + 1,
       badgePulseKey: state.badgePulseKey + 1,
     })),
-}));
+}))

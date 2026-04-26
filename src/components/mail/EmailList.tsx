@@ -2,7 +2,7 @@
 
 import * as React from "react"
 import { Search } from "lucide-react"
-import { cn } from "@/lib/utils"
+import { cn } from "@/utils/utils"
 import { Input, Segmented, Tag } from "antd"
 
 export interface Email {
@@ -62,7 +62,7 @@ export interface EmailListProps {
   onSelect?: (email: Email) => void
 }
 
-export function EmailList({ selectedId, onSelect }: EmailListProps) {
+export const EmailList = ({ selectedId, onSelect }: EmailListProps) => {
   const [filter, setFilter] = React.useState<string>("all")
   const [search, setSearch] = React.useState("")
 
@@ -77,7 +77,7 @@ export function EmailList({ selectedId, onSelect }: EmailListProps) {
         (e) =>
           e.sender.toLowerCase().includes(s) ||
           e.subject.toLowerCase().includes(s) ||
-          e.preview.toLowerCase().includes(s)
+          e.preview.toLowerCase().includes(s),
       )
     }
     return list
@@ -116,21 +116,15 @@ export function EmailList({ selectedId, onSelect }: EmailListProps) {
               onClick={() => onSelect?.(email)}
               className={cn(
                 "w-full rounded-lg border px-4 py-3 text-left transition-colors hover:bg-muted/50",
-                selectedId === email.id
-                  ? "border-border bg-muted/80"
-                  : "border-transparent"
+                selectedId === email.id ? "border-border bg-muted/80" : "border-transparent",
               )}
             >
               <div className="flex items-start justify-between gap-2">
                 <span className="truncate font-medium">{email.sender}</span>
-                <span className="shrink-0 text-xs text-muted-foreground">
-                  {email.time}
-                </span>
+                <span className="shrink-0 text-xs text-muted-foreground">{email.time}</span>
               </div>
               <p className="mt-0.5 truncate text-sm font-medium">{email.subject}</p>
-              <p className="mt-0.5 line-clamp-2 text-xs text-muted-foreground">
-                {email.preview}
-              </p>
+              <p className="mt-0.5 line-clamp-2 text-xs text-muted-foreground">{email.preview}</p>
               {email.tags.length > 0 && (
                 <div className="mt-2 flex flex-wrap gap-1">
                   {email.tags.map((tag) => (

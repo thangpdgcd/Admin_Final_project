@@ -1,24 +1,24 @@
-import { create } from "zustand";
-import type { NotificationRow } from "../model/types";
+import { create } from "zustand"
+import type { NotificationRow } from "../model/types"
 
 type State = {
-  items: NotificationRow[];
-  hydrated: boolean;
-};
+  items: NotificationRow[]
+  hydrated: boolean
+}
 
 type Actions = {
-  hydrate: (items: NotificationRow[]) => void;
-  addIncoming: (n: NotificationRow) => void;
-  markReadLocal: (id: number) => void;
-  markAllReadLocal: () => void;
-  clear: () => void;
-};
+  hydrate: (items: NotificationRow[]) => void
+  addIncoming: (n: NotificationRow) => void
+  markReadLocal: (id: number) => void
+  markAllReadLocal: () => void
+  clear: () => void
+}
 
 const sortDesc = (a: NotificationRow, b: NotificationRow) => {
-  const ta = a.createdAt ? new Date(a.createdAt).getTime() : 0;
-  const tb = b.createdAt ? new Date(b.createdAt).getTime() : 0;
-  return tb - ta;
-};
+  const ta = a.createdAt ? new Date(a.createdAt).getTime() : 0
+  const tb = b.createdAt ? new Date(b.createdAt).getTime() : 0
+  return tb - ta
+}
 
 export const useNotificationsStore = create<State & Actions>((set) => ({
   items: [],
@@ -28,11 +28,11 @@ export const useNotificationsStore = create<State & Actions>((set) => ({
 
   addIncoming: (n) =>
     set((prev) => {
-      const id = Number(n?.id);
-      if (!Number.isFinite(id)) return prev;
-      const next = prev.items.filter((x) => Number(x.id) !== id);
-      next.unshift({ ...n, id });
-      return { ...prev, items: next.sort(sortDesc) };
+      const id = Number(n?.id)
+      if (!Number.isFinite(id)) return prev
+      const next = prev.items.filter((x) => Number(x.id) !== id)
+      next.unshift({ ...n, id })
+      return { ...prev, items: next.sort(sortDesc) }
     }),
 
   markReadLocal: (id) =>
@@ -48,7 +48,7 @@ export const useNotificationsStore = create<State & Actions>((set) => ({
     })),
 
   clear: () => set({ items: [], hydrated: true }),
-}));
+}))
 
-export const selectUnreadCount = (items: NotificationRow[]) => items.reduce((acc, n) => acc + (n.isRead ? 0 : 1), 0);
-
+export const selectUnreadCount = (items: NotificationRow[]) =>
+  items.reduce((acc, n) => acc + (n.isRead ? 0 : 1), 0)

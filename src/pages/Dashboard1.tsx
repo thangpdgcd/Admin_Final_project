@@ -4,7 +4,7 @@ import { VisitorsChart } from "@/components/charts/VisitorsChart"
 import { DashboardTabs } from "@/components/tabs/DashboardTabs"
 import { DashboardDataTable } from "@/components/data-table/DashboardDataTable"
 
-export function Dashboard1() {
+export const Dashboard1 = () => {
   useAuth()
 
   return (

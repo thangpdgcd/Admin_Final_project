@@ -6,7 +6,20 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
 import { Search, Plus, Pencil, Trash2, ReceiptText } from "lucide-react"
 import { MetricCard } from "@/components/dashboard/cards/MetricCard"
-import { Avatar, Button, Card, Grid, Input, Modal, Pagination, Select, Table, Tag, Typography, Skeleton } from "antd"
+import {
+  Avatar,
+  Button,
+  Card,
+  Grid,
+  Input,
+  Modal,
+  Pagination,
+  Select,
+  Table,
+  Tag,
+  Typography,
+  Skeleton,
+} from "antd"
 import type { ColumnsType } from "antd/es/table"
 import { MotionHover } from "@/components/motion/MotionHover"
 import {
@@ -18,9 +31,10 @@ import {
 } from "@/services/userService"
 import { orderService, type OrderEntity } from "@/services/order.service"
 import { useAuth } from "@/hooks/useAuth"
-import { getErrorMessage } from "@/lib/errorUtils"
+import { getErrorMessage } from "@/utils/errorUtils"
 import { toast } from "sonner"
 import { useUsers } from "@/hooks/useUsers"
+import { useTranslation } from "react-i18next"
 
 const ROLE_OPTIONS: { value: UserRole; label: string }[] = [
   { value: "admin", label: "Admin" },
@@ -28,11 +42,9 @@ const ROLE_OPTIONS: { value: UserRole; label: string }[] = [
   { value: "user", label: "User" },
 ]
 
-function getRoleLabel(role: UserRole): string {
-  return ROLE_OPTIONS.find((r) => r.value === role)?.label ?? role
-}
+const getRoleLabel = (role: UserRole): string => ROLE_OPTIONS.find((r) => r.value === role)?.label ?? role
 
-function getInitials(name: string) {
+const getInitials = (name: string) => {
   return name
     .split(" ")
     .map((n) => n[0])
@@ -41,7 +53,7 @@ function getInitials(name: string) {
     .slice(0, 2)
 }
 
-function formatDate(value: string) {
+const formatDate = (value: string) => {
   try {
     return new Date(value).toLocaleDateString(undefined, {
       year: "numeric",
@@ -53,7 +65,7 @@ function formatDate(value: string) {
   }
 }
 
-function readStringFromRecord(obj: unknown, key: string): string | undefined {
+const readStringFromRecord = (obj: unknown, key: string): string | undefined => {
   if (!obj || typeof obj !== "object") return undefined
   const r = obj as Record<string, unknown>
   const v = r[key]
@@ -61,7 +73,7 @@ function readStringFromRecord(obj: unknown, key: string): string | undefined {
   return String(v)
 }
 
-function readNumberFromRecord(obj: unknown, key: string): number | undefined {
+const readNumberFromRecord = (obj: unknown, key: string): number | undefined => {
   if (!obj || typeof obj !== "object") return undefined
   const r = obj as Record<string, unknown>
   const n = Number(r[key])
@@ -86,7 +98,8 @@ type EditUserFormValues = z.infer<typeof editUserSchema>
 
 const limit = 10
 
-export function Users() {
+export const Users = () => {
+  const { t } = useTranslation()
   const { user: currentUser } = useAuth()
   const screens = Grid.useBreakpoint()
   const isMobile = !screens.md
@@ -105,9 +118,7 @@ export function Users() {
   const [userOrders, setUserOrders] = React.useState<OrderEntity[]>([])
   const [submitting, setSubmitting] = React.useState(false)
   const usersHook = useUsers()
-  const isEditingSelf = Boolean(
-    editUser && currentUser && String(editUser._id) === String(currentUser._id)
-  )
+  const isEditingSelf = Boolean(editUser && currentUser && String(editUser._id) === String(currentUser._id))
   const isEditingAdmin = Boolean(editUser && editUser.role === "admin")
   const cannotChangeRole = isEditingSelf || isEditingAdmin
 
@@ -117,7 +128,7 @@ export function Users() {
         (user as User & { id?: string; userId?: string | number; usersId?: string | number }).id ||
         (user as User & { id?: string; userId?: string | number; usersId?: string | number }).userId ||
         (user as User & { id?: string; userId?: string | number; usersId?: string | number }).usersId ||
-        ""
+        "",
     )
   }, [])
 
@@ -128,13 +139,13 @@ export function Users() {
       const res = await userService.getUsers({
         page,
         limit,
-        role: roleFilter as UserRole | "" || undefined,
+        role: (roleFilter as UserRole | "") || undefined,
       })
       setUsers(
         res.users.map((user) => ({
           ...user,
           _id: resolveRowUserId(user),
-        }))
+        })),
       )
       setTotal(res.total)
     } catch (err) {
@@ -158,10 +169,7 @@ export function Users() {
   const filteredUsers = React.useMemo(() => {
     if (!search.trim()) return users
     const s = search.toLowerCase()
-    return users.filter(
-      (u) =>
-        u.name.toLowerCase().includes(s) || u.email.toLowerCase().includes(s)
-    )
+    return users.filter((u) => u.name.toLowerCase().includes(s) || u.email.toLowerCase().includes(s))
   }, [users, search])
 
   const totalPages = Math.ceil(total / limit) || 1
@@ -176,24 +184,27 @@ export function Users() {
     }).format(n)
   }
 
-  const openUserOrders = async (user: User) => {
-    const userId = resolveRowUserId(user)
-    if (!userId) {
-      toast.error("Missing user id")
-      return
-    }
-    setOrdersUser(user)
-    setOrdersLoading(true)
-    setUserOrders([])
-    try {
-      const list = await orderService.getByUserId(userId, {})
-      setUserOrders(list)
-    } catch (err) {
-      toast.error(getErrorMessage(err))
-    } finally {
-      setOrdersLoading(false)
-    }
-  }
+  const openUserOrders = React.useCallback(
+    async (user: User) => {
+      const userId = resolveRowUserId(user)
+      if (!userId) {
+        toast.error(t("users.missingUserId"))
+        return
+      }
+      setOrdersUser(user)
+      setOrdersLoading(true)
+      setUserOrders([])
+      try {
+        const list = await orderService.getByUserId(userId, {})
+        setUserOrders(list)
+      } catch (err) {
+        toast.error(getErrorMessage(err))
+      } finally {
+        setOrdersLoading(false)
+      }
+    },
+    [resolveRowUserId],
+  )
 
   const createForm = useForm<CreateUserFormValues>({
     resolver: zodResolver(createUserSchema),
@@ -228,7 +239,7 @@ export function Users() {
     setSubmitting(true)
     try {
       await userService.createUser(values as CreateUserBody)
-      toast.success("User created successfully")
+      toast.success(t("users.createdSuccess"))
       setCreateOpen(false)
       createForm.reset()
       fetchUsers()
@@ -245,14 +256,14 @@ export function Users() {
     try {
       const editUserId = resolveRowUserId(editUser)
       if (!editUserId) {
-        toast.error("Missing user id")
+        toast.error(t("users.missingUserId"))
         return
       }
       const body: UpdateUserBody = cannotChangeRole
         ? { name: values.name, email: values.email }
         : { name: values.name, email: values.email, role: values.role }
       await userService.updateUser(editUserId, body)
-      toast.success("User updated successfully")
+      toast.success(t("users.updatedSuccess"))
       setEditUser(null)
       fetchUsers()
     } catch (err) {
@@ -268,11 +279,11 @@ export function Users() {
     try {
       const deleteUserId = resolveRowUserId(deleteUser)
       if (!deleteUserId) {
-        toast.error("Missing user id")
+        toast.error(t("users.missingUserId"))
         return
       }
       await userService.deleteUser(deleteUserId)
-      toast.success("User deleted successfully")
+      toast.success(t("users.deletedSuccess"))
       setDeleteUser(null)
       fetchUsers()
     } catch (err) {
@@ -315,9 +326,7 @@ export function Users() {
         title: "Created",
         dataIndex: "createdAt",
         key: "createdAt",
-        render: (v: string) => (
-          <span className="text-muted-foreground text-sm">{formatDate(v)}</span>
-        ),
+        render: (v: string) => <span className="text-muted-foreground text-sm">{formatDate(v)}</span>,
       },
       {
         title: "Actions",
@@ -354,7 +363,7 @@ export function Users() {
         ),
       },
     ],
-    [openUserOrders, resolveRowUserId]
+    [openUserOrders, resolveRowUserId],
   )
 
   const ordersColumns = React.useMemo<ColumnsType<OrderEntity>>(
@@ -371,9 +380,7 @@ export function Users() {
       {
         title: "Status",
         key: "status",
-        render: (_v, o) => (
-          <span className="capitalize">{readStringFromRecord(o, "status") ?? "—"}</span>
-        ),
+        render: (_v, o) => <span className="capitalize">{readStringFromRecord(o, "status") ?? "—"}</span>,
       },
       {
         title: "Total",
@@ -392,25 +399,23 @@ export function Users() {
           ),
       },
     ],
-    []
+    [],
   )
 
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-2xl font-bold tracking-tight">Users</h2>
-        <p className="text-muted-foreground">
-          Manage admin and staff accounts
-        </p>
+        <h2 className="text-2xl font-bold tracking-tight">{t("users.title")}</h2>
+        <p className="text-muted-foreground">{t("users.manageSubtitle")}</p>
       </div>
 
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-4">
         <MetricCard
-          title="Total Users"
+          title={t("users.totalUsers")}
           value={String(total)}
           change=""
           positive={true}
-          description="From database"
+          description={t("users.fromDatabase")}
         />
       </div>
 
@@ -419,7 +424,7 @@ export function Users() {
           <div className="flex flex-1 flex-wrap items-center gap-2">
             <div className="relative flex-1 md:max-w-sm">
               <Input
-                placeholder="Search users..."
+                placeholder={t("users.searchPlaceholder")}
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 prefix={<Search className="h-4 w-4 text-muted-foreground" />}
@@ -430,7 +435,7 @@ export function Users() {
               value={roleFilter || "all"}
               onChange={(v) => setRoleFilter(v === "all" ? "" : String(v))}
               options={[
-                { value: "all", label: "All roles" },
+                { value: "all", label: t("users.allRoles") },
                 ...ROLE_OPTIONS.map((r) => ({ value: r.value, label: r.label })),
               ]}
             />
@@ -438,14 +443,12 @@ export function Users() {
           <MotionHover>
             <Button type="primary" size="small" onClick={() => setCreateOpen(true)}>
               <Plus className="mr-2 h-4 w-4" />
-              Add New User
+              {t("users.addNew")}
             </Button>
           </MotionHover>
         </div>
 
-        {error && (
-          <p className="mt-2 text-sm text-destructive">{error}</p>
-        )}
+        {error && <p className="mt-2 text-sm text-destructive">{error}</p>}
 
         <div className="mt-4 overflow-auto">
           {isMobile ? (
@@ -513,8 +516,7 @@ export function Users() {
         {!loading && total > 0 && (
           <div className="mt-4 flex items-center justify-between">
             <p className="text-sm text-muted-foreground">
-              Showing {(page - 1) * limit + 1} to{" "}
-              {Math.min(page * limit, total)} of {total} users
+              Showing {(page - 1) * limit + 1} to {Math.min(page * limit, total)} of {total} users
             </p>
             <Pagination
               current={page}
@@ -534,7 +536,7 @@ export function Users() {
         onCancel={() => setCreateOpen(false)}
         title="Create user"
         footer={null}
-        destroyOnClose
+        destroyOnHidden
       >
         <Typography.Paragraph type="secondary" className="mt-0">
           Add a new user. They can sign in with the email and password you set.
@@ -596,7 +598,7 @@ export function Users() {
         onCancel={() => setEditUser(null)}
         title="Edit user"
         footer={null}
-        destroyOnClose
+        destroyOnHidden
       >
         <Typography.Paragraph type="secondary" className="mt-0">
           Update user details. Password cannot be changed here.
@@ -659,7 +661,7 @@ export function Users() {
         okText="Delete"
         okButtonProps={{ danger: true, loading: submitting }}
         onOk={onConfirmDelete}
-        destroyOnClose
+        destroyOnHidden
       >
         <Typography.Text>
           Are you sure you want to delete <b>{deleteUser?.name}</b>? This action cannot be undone.
@@ -673,13 +675,17 @@ export function Users() {
         title={`Orders of ${ordersUser?.name ?? ""}`}
         footer={null}
         width={900}
-        destroyOnClose
+        destroyOnHidden
       >
         <Typography.Paragraph type="secondary" className="mt-0">
           All orders belonging to this user.
         </Typography.Paragraph>
         <Table<OrderEntity>
-          rowKey={(o) => String(readStringFromRecord(o, "orderId") ?? o._id ?? readStringFromRecord(o, "id") ?? Math.random())}
+          rowKey={(o) =>
+            String(
+              readStringFromRecord(o, "orderId") ?? o._id ?? readStringFromRecord(o, "id") ?? Math.random(),
+            )
+          }
           loading={ordersLoading}
           columns={ordersColumns}
           dataSource={userOrders}

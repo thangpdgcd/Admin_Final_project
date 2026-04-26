@@ -1,21 +1,21 @@
-import * as React from "react";
-import { format } from "date-fns";
-import { Plus, Pencil, Trash2, CheckCircle2, LayoutGrid, List } from "lucide-react";
-import { useTasksStore, type Task, type TaskStatus, type TaskPriority } from "@/store/tasksStore";
-import { Button, Card, Input, Modal, Segmented, Select, Table, Tag, Typography } from "antd";
-import type { ColumnsType } from "antd/es/table";
-import { toast } from "sonner";
+import * as React from "react"
+import { format } from "date-fns"
+import { Plus, Pencil, Trash2, CheckCircle2, LayoutGrid, List } from "lucide-react"
+import { useTasksStore, type Task, type TaskStatus, type TaskPriority } from "@/store/tasksStore"
+import { Button, Card, Input, Modal, Segmented, Select, Table, Tag, Typography } from "antd"
+import type { ColumnsType } from "antd/es/table"
+import { toast } from "sonner"
 
-type ViewMode = "table" | "kanban";
+type ViewMode = "table" | "kanban"
 
 interface TaskFormState {
-  id?: string;
-  name: string;
-  status: TaskStatus;
-  priority: TaskPriority;
-  dueDate?: string;
-  assignedTo?: string;
-  description?: string;
+  id?: string
+  name: string
+  status: TaskStatus
+  priority: TaskPriority
+  dueDate?: string
+  assignedTo?: string
+  description?: string
 }
 
 const EMPTY_FORM: TaskFormState = {
@@ -25,79 +25,79 @@ const EMPTY_FORM: TaskFormState = {
   dueDate: "",
   assignedTo: "",
   description: "",
-};
+}
 
 const STATUS_LABEL: Record<TaskStatus, string> = {
   todo: "Todo",
   in_progress: "In Progress",
   done: "Done",
-};
+}
 
 const PRIORITY_LABEL: Record<TaskPriority, string> = {
   low: "Low",
   medium: "Medium",
   high: "High",
-};
+}
 
 const priorityTag = (priority: TaskPriority) => {
-  const color = priority === "low" ? "green" : priority === "medium" ? "gold" : "red";
-  return <Tag color={color}>{PRIORITY_LABEL[priority]}</Tag>;
-};
+  const color = priority === "low" ? "green" : priority === "medium" ? "gold" : "red"
+  return <Tag color={color}>{PRIORITY_LABEL[priority]}</Tag>
+}
 
 const statusTag = (status: TaskStatus) => {
-  const color = status === "done" ? "green" : status === "in_progress" ? "blue" : "default";
-  return <Tag color={color}>{STATUS_LABEL[status]}</Tag>;
-};
+  const color = status === "done" ? "green" : status === "in_progress" ? "blue" : "default"
+  return <Tag color={color}>{STATUS_LABEL[status]}</Tag>
+}
 
-function formatDueDate(value?: string) {
-  if (!value) return "No due date";
+const formatDueDate = (value?: string) => {
+  if (!value) return "No due date"
   try {
-    return format(new Date(value), "PP");
+    return format(new Date(value), "PP")
   } catch {
-    return value;
+    return value
   }
 }
 
-export function TasksPage() {
-  const { tasks, addTask, updateTask, deleteTask, toggleComplete } = useTasksStore();
-  const [view, setView] = React.useState<ViewMode>("table");
-  const [search, setSearch] = React.useState("");
-  const [statusFilter, setStatusFilter] = React.useState<TaskStatus | "all">("all");
-  const [priorityFilter, setPriorityFilter] = React.useState<TaskPriority | "all">("all");
-  const [dialogOpen, setDialogOpen] = React.useState(false);
-  const [formState, setFormState] = React.useState<TaskFormState>(EMPTY_FORM);
+export const TasksPage = () => {
+  const { tasks, addTask, updateTask, deleteTask, toggleComplete } = useTasksStore()
+  const [view, setView] = React.useState<ViewMode>("table")
+  const [search, setSearch] = React.useState("")
+  const [statusFilter, setStatusFilter] = React.useState<TaskStatus | "all">("all")
+  const [priorityFilter, setPriorityFilter] = React.useState<TaskPriority | "all">("all")
+  const [dialogOpen, setDialogOpen] = React.useState(false)
+  const [formState, setFormState] = React.useState<TaskFormState>(EMPTY_FORM)
 
   const filteredTasks = React.useMemo(() => {
     return tasks.filter((t) => {
       if (search && !t.name.toLowerCase().includes(search.toLowerCase())) {
-        return false;
+        return false
       }
       if (statusFilter !== "all" && t.status !== statusFilter) {
-        return false;
+        return false
       }
       if (priorityFilter !== "all" && t.priority !== priorityFilter) {
-        return false;
+        return false
       }
-      return true;
-    });
-  }, [tasks, search, statusFilter, priorityFilter]);
+      return true
+    })
+  }, [tasks, search, statusFilter, priorityFilter])
 
   const groupedByStatus = React.useMemo(() => {
     const groups: Record<TaskStatus, Task[]> = {
       todo: [],
       in_progress: [],
       done: [],
-    };
-    for (const t of filteredTasks) {
-      groups[t.status].push(t);
     }
-    return groups;
-  }, [filteredTasks]);
+    for (const t of filteredTasks) {
+      groups[t.status].push(t)
+    }
+    return groups
+  }, [filteredTasks])
 
   const openCreate = () => {
-    setFormState(EMPTY_FORM);
-    setDialogOpen(true);
-  };
+    setFormState(EMPTY_FORM)
+    setDialogOpen(true)
+  }
 
   const openEdit = (task: Task) => {
     setFormState({
@@ -108,14 +108,14 @@ export function TasksPage() {
       dueDate: task.dueDate ?? "",
       assignedTo: task.assignedTo ?? "",
       description: task.description ?? "",
-    });
-    setDialogOpen(true);
-  };
+    })
+    setDialogOpen(true)
+  }
 
   const handleSubmit = () => {
     if (!formState.name.trim()) {
-      toast.error("Task name is required");
-      return;
+      toast.error("Task name is required")
+      return
     }
     const payload: Omit<Task, "id"> = {
       name: formState.name.trim(),
@@ -124,27 +124,33 @@ export function TasksPage() {
       dueDate: formState.dueDate || undefined,
       assignedTo: formState.assignedTo || undefined,
       description: formState.description || undefined,
-    };
-    if (formState.id) {
-      updateTask(formState.id, payload);
-      toast.success("Task updated");
-    } else {
-      addTask(payload);
-      toast.success("Task created");
     }
-    setDialogOpen(false);
-    setFormState(EMPTY_FORM);
-  };
+    if (formState.id) {
+      updateTask(formState.id, payload)
+      toast.success("Task updated")
+    } else {
+      addTask(payload)
+      toast.success("Task created")
+    }
+    setDialogOpen(false)
+    setFormState(EMPTY_FORM)
+  }
 
-  const handleDelete = (id: string) => {
-    deleteTask(id);
-    toast.success("Task deleted");
-  };
+  const handleDelete = React.useCallback(
+    (id: string) => {
+      deleteTask(id)
+      toast.success("Task deleted")
+    },
+    [deleteTask],
+  )
 
-  const handleToggleComplete = (id: string) => {
-    toggleComplete(id);
-    toast.success("Task status updated");
-  };
+  const handleToggleComplete = React.useCallback(
+    (id: string) => {
+      toggleComplete(id)
+      toast.success("Task status updated")
+    },
+    [toggleComplete],
+  )
 
   const columns = React.useMemo<ColumnsType<Task>>(
     () => [
@@ -155,9 +161,7 @@ export function TasksPage() {
           <div className="flex flex-col">
             <span className="font-medium">{task.name}</span>
             {task.description && (
-              <span className="truncate text-xs text-muted-foreground">
-                {task.description}
-              </span>
+              <span className="truncate text-xs text-muted-foreground">{task.description}</span>
             )}
           </div>
         ),
@@ -187,7 +191,11 @@ export function TasksPage() {
         render: (_v, task) => (
           <div className="flex items-center gap-1">
             <Button type="text" onClick={() => handleToggleComplete(task.id)} aria-label="Toggle complete">
-              <CheckCircle2 className={task.status === "done" ? "h-4 w-4 text-emerald-500" : "h-4 w-4 text-muted-foreground"} />
+              <CheckCircle2
+                className={
+                  task.status === "done" ? "h-4 w-4 text-emerald-500" : "h-4 w-4 text-muted-foreground"
+                }
+              />
             </Button>
             <Button type="text" onClick={() => openEdit(task)} aria-label="Edit">
               <Pencil className="h-4 w-4" />
@@ -199,25 +207,39 @@ export function TasksPage() {
         ),
       },
     ],
-    [handleDelete, handleToggleComplete]
-  );
+    [handleDelete, handleToggleComplete],
+  )
 
   return (
     <div className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="space-y-1">
           <h2 className="text-2xl font-bold tracking-tight">Tasks</h2>
-          <p className="text-muted-foreground">
-            Lightweight task management for your ecommerce operations.
-          </p>
+          <p className="text-muted-foreground">Lightweight task management for your ecommerce operations.</p>
         </div>
         <div className="flex items-center gap-2">
           <Segmented
             value={view}
             onChange={(v) => setView(v as ViewMode)}
             options={[
-              { label: <span className="inline-flex items-center gap-1"><List className="h-3 w-3" />Table</span>, value: "table" },
-              { label: <span className="inline-flex items-center gap-1"><LayoutGrid className="h-3 w-3" />Board</span>, value: "kanban" },
+              {
+                label: (
+                  <span className="inline-flex items-center gap-1">
+                    <List className="h-3 w-3" />
+                    Table
+                  </span>
+                ),
+                value: "table",
+              },
+              {
+                label: (
+                  <span className="inline-flex items-center gap-1">
+                    <LayoutGrid className="h-3 w-3" />
+                    Board
+                  </span>
+                ),
+                value: "kanban",
+              },
             ]}
           />
           <Button type="primary" onClick={openCreate}>
@@ -289,9 +311,7 @@ export function TasksPage() {
                   </div>
                   <div className="flex-1 space-y-2">
                     {groupedByStatus[status].length === 0 ? (
-                      <p className="pt-4 text-xs text-muted-foreground">
-                        No tasks in this column yet.
-                      </p>
+                      <p className="pt-4 text-xs text-muted-foreground">No tasks in this column yet.</p>
                     ) : (
                       groupedByStatus[status].map((task) => (
                         <div
@@ -329,7 +349,7 @@ export function TasksPage() {
         title={formState.id ? "Edit task" : "Create task"}
         onOk={handleSubmit}
         okText={formState.id ? "Save changes" : "Create task"}
-        destroyOnClose
+        destroyOnHidden
       >
         <div className="space-y-4">
           <div className="space-y-1">
@@ -396,6 +416,5 @@ export function TasksPage() {
         </div>
       </Modal>
     </div>
-  );
+  )
 }
-

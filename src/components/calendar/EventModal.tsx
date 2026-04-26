@@ -7,25 +7,25 @@ import { z } from "zod"
 import { Button, Input, Modal, Select, Typography } from "antd"
 import type { CalendarEvent, CalendarEventCategory } from "@/types/calendar"
 
-function toDatetimeLocal(d: Date): string {
+const toDatetimeLocal = (d: Date): string => {
   const pad = (n: number) => String(n).padStart(2, "0")
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`
 }
 
-function fromDatetimeLocal(s: string): Date {
-  return new Date(s)
-}
+const fromDatetimeLocal = (s: string): Date => new Date(s)
 
-const eventSchema = z.object({
-  title: z.string().min(1, "Title is required"),
-  description: z.string(),
-  start: z.date(),
-  end: z.date(),
-  category: z.enum(["personal", "work", "family"]),
-}).refine((data) => data.end > data.start, {
-  message: "End must be after start",
-  path: ["end"],
-})
+const eventSchema = z
+  .object({
+    title: z.string().min(1, "Title is required"),
+    description: z.string(),
+    start: z.date(),
+    end: z.date(),
+    category: z.enum(["personal", "work", "family"]),
+  })
+  .refine((data) => data.end > data.start, {
+    message: "End must be after start",
+    path: ["end"],
+  })
 
 export type EventFormValues = z.infer<typeof eventSchema>
 
@@ -46,14 +46,14 @@ const EMPTY_EVENT_VALUES: EventFormValues = {
   category: "work",
 }
 
-export function EventModal({
+export const EventModal = ({
   open,
   onOpenChange,
   event,
   defaultStart,
   onSave,
   onDelete,
-}: EventModalProps) {
+}: EventModalProps) => {
   const isEdit = !!event
   const form = useForm<EventFormValues>({
     resolver: zodResolver(eventSchema),
@@ -109,7 +109,7 @@ export function EventModal({
       onCancel={() => onOpenChange(false)}
       title={isEdit ? "Edit event" : "New event"}
       footer={null}
-      destroyOnClose
+      destroyOnHidden
     >
       <Typography.Paragraph type="secondary" className="mt-0">
         {isEdit ? "Update event details." : "Add a new event to your calendar."}
@@ -177,11 +177,7 @@ export function EventModal({
             control={form.control}
             name="category"
             render={({ field }) => (
-              <Select
-                value={field.value}
-                onChange={field.onChange}
-                options={categoryOptions}
-              />
+              <Select value={field.value} onChange={field.onChange} options={categoryOptions} />
             )}
           />
         </div>

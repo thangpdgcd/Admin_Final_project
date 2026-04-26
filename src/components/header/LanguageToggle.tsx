@@ -1,10 +1,10 @@
- "use client"
+"use client"
 
 import { Languages } from "lucide-react"
 import { useTranslation } from "react-i18next"
 import { Button, Dropdown } from "antd"
 
-export function LanguageToggle() {
+export const LanguageToggle = () => {
   const { i18n, t } = useTranslation()
   const current = i18n.language === "vi" ? "VI" : "EN"
 
@@ -34,4 +34,3 @@ export function LanguageToggle() {
     </Dropdown>
   )
 }
-

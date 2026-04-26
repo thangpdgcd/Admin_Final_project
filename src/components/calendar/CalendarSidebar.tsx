@@ -21,14 +21,14 @@ export interface CalendarSidebarProps {
   className?: string
 }
 
-export function CalendarSidebar({
+export const CalendarSidebar = ({
   currentDate,
   onDateChange,
   onAddEvent,
   categoryFilter,
   onCategoryFilterChange,
   className,
-}: CalendarSidebarProps) {
+}: CalendarSidebarProps) => {
   const year = currentDate.getFullYear()
   const month = currentDate.getMonth()
   const today = new Date()
@@ -79,9 +79,7 @@ export function CalendarSidebar({
               <button
                 key={i}
                 type="button"
-                onClick={() =>
-                  d && onDateChange?.(new Date(year, month, d))
-                }
+                onClick={() => d && onDateChange?.(new Date(year, month, d))}
                 className={[
                   "flex h-6 w-6 items-center justify-center rounded-md text-xs",
                   d ? "hover:bg-muted" : "cursor-default text-transparent",
@@ -99,19 +97,14 @@ export function CalendarSidebar({
         </div>
 
         <div className="space-y-2">
-          <p className="text-xs font-medium text-muted-foreground">
-            Event categories
-          </p>
+          <p className="text-xs font-medium text-muted-foreground">Event categories</p>
           <div className="flex flex-col gap-1.5">
             {[
               { key: "personal" as const, label: "Personal", color: "bg-blue-500" },
               { key: "work" as const, label: "Work", color: "bg-emerald-500" },
               { key: "family" as const, label: "Family", color: "bg-amber-500" },
             ].map(({ key, label, color }) => (
-              <label
-                key={key}
-                className="flex cursor-pointer items-center gap-2 text-sm"
-              >
+              <label key={key} className="flex cursor-pointer items-center gap-2 text-sm">
                 <Checkbox
                   checked={categoryFilter[key]}
                   onChange={(e) => setCategory(key, e.target.checked)}

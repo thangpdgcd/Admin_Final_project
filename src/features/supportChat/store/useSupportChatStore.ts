@@ -1,31 +1,31 @@
-import { create } from "zustand";
-import { toast } from "sonner";
-import type { UiConversation, UiMessage } from "../model/types";
+import { create } from "zustand"
+import { toast } from "sonner"
+import type { UiConversation, UiMessage } from "../model/types"
 
-type ConnectionState = "disconnected" | "connecting" | "connected";
+type ConnectionState = "disconnected" | "connecting" | "connected"
 
 type SupportChatState = {
-  connection: ConnectionState;
-  conversations: UiConversation[];
-  selectedConversationId: number | null;
-  messagesByConversationId: Record<number, UiMessage[]>;
-  unreadByConversationId: Record<number, number>;
-  isLoadingConversations: boolean;
-  isLoadingMessages: boolean;
-  error: string | null;
+  connection: ConnectionState
+  conversations: UiConversation[]
+  selectedConversationId: number | null
+  messagesByConversationId: Record<number, UiMessage[]>
+  unreadByConversationId: Record<number, number>
+  isLoadingConversations: boolean
+  isLoadingMessages: boolean
+  error: string | null
 
-  setConnection: (s: ConnectionState) => void;
-  setConversations: (convs: UiConversation[]) => void;
-  upsertConversationPreview: (convId: number, patch: Partial<UiConversation>) => void;
-  selectConversation: (convId: number | null) => void;
-  setMessages: (convId: number, messages: UiMessage[]) => void;
-  appendMessage: (convId: number, message: UiMessage) => void;
-  markRead: (convId: number) => void;
-  setUnread: (convId: number, count: number) => void;
-  setIsLoadingConversations: (v: boolean) => void;
-  setIsLoadingMessages: (v: boolean) => void;
-  setError: (msg: string | null) => void;
-};
+  setConnection: (s: ConnectionState) => void
+  setConversations: (convs: UiConversation[]) => void
+  upsertConversationPreview: (convId: number, patch: Partial<UiConversation>) => void
+  selectConversation: (convId: number | null) => void
+  setMessages: (convId: number, messages: UiMessage[]) => void
+  appendMessage: (convId: number, message: UiMessage) => void
+  markRead: (convId: number) => void
+  setUnread: (convId: number, count: number) => void
+  setIsLoadingConversations: (v: boolean) => void
+  setIsLoadingMessages: (v: boolean) => void
+  setError: (msg: string | null) => void
+}
 
 export const useSupportChatStore = create<SupportChatState>((set) => ({
   connection: "disconnected",
@@ -41,15 +41,15 @@ export const useSupportChatStore = create<SupportChatState>((set) => ({
 
   setConversations: (convs) =>
     set((prev) => {
-      const unread: Record<number, number> = { ...prev.unreadByConversationId };
-      for (const c of convs) unread[c.id] = unread[c.id] ?? c.unread ?? 0;
-      return { conversations: convs, unreadByConversationId: unread };
+      const unread: Record<number, number> = { ...prev.unreadByConversationId }
+      for (const c of convs) unread[c.id] = unread[c.id] ?? c.unread ?? 0
+      return { conversations: convs, unreadByConversationId: unread }
     }),
 
   upsertConversationPreview: (convId, patch) =>
     set((prev) => {
-      const idx = prev.conversations.findIndex((c) => c.id === convId);
-      const next = [...prev.conversations];
+      const idx = prev.conversations.findIndex((c) => c.id === convId)
+      const next = [...prev.conversations]
       if (idx === -1) {
         next.push({
           id: convId,
@@ -59,12 +59,12 @@ export const useSupportChatStore = create<SupportChatState>((set) => ({
           timestampLabel: patch.timestampLabel ?? "",
           updatedAtMs: patch.updatedAtMs ?? Date.now(),
           unread: patch.unread ?? 0,
-        });
+        })
       } else {
-        next[idx] = { ...next[idx], ...patch };
+        next[idx] = { ...next[idx], ...patch }
       }
-      next.sort((a, b) => b.updatedAtMs - a.updatedAtMs);
-      return { conversations: next };
+      next.sort((a, b) => b.updatedAtMs - a.updatedAtMs)
+      return { conversations: next }
     }),
 
   selectConversation: (convId) => set({ selectedConversationId: convId }),
@@ -76,10 +76,10 @@ export const useSupportChatStore = create<SupportChatState>((set) => ({
 
   appendMessage: (convId, message) =>
     set((prev) => {
-      const current = prev.messagesByConversationId[convId] ?? [];
+      const current = prev.messagesByConversationId[convId] ?? []
       return {
         messagesByConversationId: { ...prev.messagesByConversationId, [convId]: [...current, message] },
-      };
+      }
     }),
 
   markRead: (convId) =>
@@ -96,8 +96,7 @@ export const useSupportChatStore = create<SupportChatState>((set) => ({
   setIsLoadingMessages: (v) => set({ isLoadingMessages: v }),
 
   setError: (msg) => {
-    set({ error: msg });
-    if (msg) toast.error(msg);
+    set({ error: msg })
+    if (msg) toast.error(msg)
   },
-}));
-
+}))

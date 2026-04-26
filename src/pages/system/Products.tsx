@@ -1,36 +1,49 @@
-import { useEffect, useState } from "react";
-import { Button, Card, Form, Grid, Input, InputNumber, Modal, Pagination, Popconfirm, Select, Skeleton, Space, Table, Upload } from "antd";
-import type { PaginationProps } from "antd";
-import type { ColumnsType, TablePaginationConfig } from "antd/es/table";
-import type { UploadFile } from "antd/es/upload/interface";
-import { UploadOutlined } from "@ant-design/icons";
-import dayjs from "dayjs";
-import { categoryApi } from "@/api/categoryApi";
-import { toast } from "sonner";
-import { useTranslation } from "react-i18next";
-import { useProducts, type ProductRow } from "@/hooks/useProducts";
-import { getErrorMessage } from "@/lib/errorUtils";
-import { useAuth } from "@/hooks/useAuth";
-import { MotionHover } from "@/components/motion/MotionHover";
+import { useEffect, useState } from "react"
+import {
+  Button,
+  Card,
+  Form,
+  Grid,
+  Input,
+  InputNumber,
+  Modal,
+  Pagination,
+  Popconfirm,
+  Select,
+  Skeleton,
+  Space,
+  Table,
+  Upload,
+} from "antd"
+import type { PaginationProps } from "antd"
+import type { ColumnsType, TablePaginationConfig } from "antd/es/table"
+import type { UploadFile } from "antd/es/upload/interface"
+import { UploadOutlined } from "@ant-design/icons"
+import dayjs from "dayjs"
+import { categoryApi } from "@/api/categoryApi"
+import { toast } from "sonner"
+import { useTranslation } from "react-i18next"
+import { useProducts, type ProductRow } from "@/hooks/useProducts"
+import { getErrorMessage } from "@/types/lib/errorUtils"
+import { useAuth } from "@/hooks/useAuth"
+import { MotionHover } from "@/components/motion/MotionHover"
 
-const { Search } = Input;
-const { Option } = Select;
+const { Search } = Input
+const { Option } = Select
 
 interface CategoryOptionApiItem {
-  _id?: string;
-  id?: string;
-  categoriesId?: string | number;
-  name?: string;
+  _id?: string
+  id?: string
+  categoriesId?: string | number
+  name?: string
 }
 
-function ProductThumbnail({ sources }: { sources: string[] }) {
-  const [index, setIndex] = useState(0);
-  const src = sources[index];
+const ProductThumbnail = ({ sources }: { sources: string[] }) => {
+  const [index, setIndex] = useState(0)
+  const src = sources[index]
 
   if (!src) {
-    return (
-      <div className="h-10 w-10 rounded-md border border-border/40 bg-muted/30" />
-    );
+    return <div className="h-10 w-10 rounded-md border border-border/40 bg-muted/30" />
   }
 
   return (
@@ -40,182 +53,184 @@ function ProductThumbnail({ sources }: { sources: string[] }) {
       className="h-10 w-10 rounded-md object-cover"
       onError={() => setIndex((prev) => prev + 1)}
     />
-  );
+  )
 }
 
-async function fileToCompressedBase64(file: File): Promise<string> {
+const fileToCompressedBase64 = async (file: File): Promise<string> => {
   const dataUrl = await new Promise<string>((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => resolve(String(reader.result || ""));
-    reader.onerror = reject;
-    reader.readAsDataURL(file);
-  });
+    const reader = new FileReader()
+    reader.onload = () => resolve(String(reader.result || ""))
+    reader.onerror = reject
+    reader.readAsDataURL(file)
+  })
 
   const image = await new Promise<HTMLImageElement>((resolve, reject) => {
-    const img = new Image();
-    img.onload = () => resolve(img);
-    img.onerror = reject;
-    img.src = dataUrl;
-  });
+    const img = new Image()
+    img.onload = () => resolve(img)
+    img.onerror = reject
+    img.src = dataUrl
+  })
 
-  const maxSide = 1200;
-  const ratio = Math.min(1, maxSide / Math.max(image.width, image.height));
-  const width = Math.max(1, Math.round(image.width * ratio));
-  const height = Math.max(1, Math.round(image.height * ratio));
+  const maxSide = 1200
+  const ratio = Math.min(1, maxSide / Math.max(image.width, image.height))
+  const width = Math.max(1, Math.round(image.width * ratio))
+  const height = Math.max(1, Math.round(image.height * ratio))
 
-  const canvas = document.createElement("canvas");
-  canvas.width = width;
-  canvas.height = height;
-  const ctx = canvas.getContext("2d");
-  if (!ctx) return dataUrl;
+  const canvas = document.createElement("canvas")
+  canvas.width = width
+  canvas.height = height
+  const ctx = canvas.getContext("2d")
+  if (!ctx) return dataUrl
 
-  ctx.drawImage(image, 0, 0, width, height);
-  return canvas.toDataURL("image/jpeg", 0.75) || dataUrl;
+  ctx.drawImage(image, 0, 0, width, height)
+  return canvas.toDataURL("image/jpeg", 0.75) || dataUrl
 }
 
 /** Prices are stored in VND (whole numbers). */
-function formatVnd(value: number | undefined | null): string {
-  const n = Number(value);
-  if (!Number.isFinite(n)) return "—";
+const formatVnd = (value: number | undefined | null): string => {
+  const n = Number(value)
+  if (!Number.isFinite(n)) return "—"
   return new Intl.NumberFormat("vi-VN", {
     style: "currency",
     currency: "VND",
     maximumFractionDigits: 0,
-  }).format(n);
+  }).format(n)
 }
 
-export function Products() {
-  const { t } = useTranslation();
-  const { user } = useAuth();
-  const { loading, products, total, fetchProducts, createProduct, updateProduct, deleteProduct } = useProducts();
-  const screens = Grid.useBreakpoint();
-  const isMobile = !screens.md;
-  const [page, setPage] = useState(1);
-  const [pageSize, setPageSize] = useState(10);
-  const [categoryFilter, setCategoryFilter] = useState<string | undefined>();
-  const [search, setSearch] = useState<string>("");
-  const [categories, setCategories] = useState<{ id: string; name: string }[]>([]);
+export const Products = () => {
+  const { t } = useTranslation()
+  const { user } = useAuth()
+  const { loading, products, total, fetchProducts, createProduct, updateProduct, deleteProduct } =
+    useProducts()
+  const screens = Grid.useBreakpoint()
+  const isMobile = !screens.md
+  const [page, setPage] = useState(1)
+  const [pageSize, setPageSize] = useState(10)
+  const [categoryFilter, setCategoryFilter] = useState<string | undefined>()
+  const [search, setSearch] = useState<string>("")
+  const [categories, setCategories] = useState<{ id: string; name: string }[]>([])
 
-  const [modalOpen, setModalOpen] = useState(false);
-  const [editing, setEditing] = useState<ProductRow | null>(null);
-  const [form] = Form.useForm();
-  const [fileList, setFileList] = useState<UploadFile[]>([]);
+  const [modalOpen, setModalOpen] = useState(false)
+  const [editing, setEditing] = useState<ProductRow | null>(null)
+  const [form] = Form.useForm()
+  const [fileList, setFileList] = useState<UploadFile[]>([])
 
   const extractCategoryOptions = (payload: unknown): { id: string; name: string }[] => {
     const getListFromRecord = (value: Record<string, unknown>): unknown[] => {
-      const listCandidate = [value.categories, value.items, value.results, value.data].find((item) => Array.isArray(item));
-      return Array.isArray(listCandidate) ? listCandidate : [];
-    };
+      const listCandidate = [value.categories, value.items, value.results, value.data].find((item) =>
+        Array.isArray(item),
+      )
+      return Array.isArray(listCandidate) ? listCandidate : []
+    }
 
-    let list: unknown[] = [];
+    let list: unknown[] = []
     if (Array.isArray(payload)) {
-      list = payload;
+      list = payload
     } else {
-      const candidate = payload as Record<string, unknown>;
-      list = getListFromRecord(candidate);
+      const candidate = payload as Record<string, unknown>
+      list = getListFromRecord(candidate)
       if (list.length === 0 && candidate.data && typeof candidate.data === "object") {
-        list = getListFromRecord(candidate.data as Record<string, unknown>);
+        list = getListFromRecord(candidate.data as Record<string, unknown>)
       }
     }
 
     return list
       .map((c) => {
-        const item = c as CategoryOptionApiItem;
+        const item = c as CategoryOptionApiItem
         return {
           id: String(item._id || item.id || item.categoriesId || ""),
           name: String(item.name || ""),
-        };
+        }
       })
-      .filter((c) => Boolean(c.id));
-  };
+      .filter((c) => Boolean(c.id))
+  }
 
   const fetchCategories = async () => {
     try {
-      const res = await categoryApi.getCategories({ limit: 100 });
-      console.log("[products] /categories response:", (res as { data?: unknown }).data ?? res);
-      setCategories(extractCategoryOptions(res));
+      const res = await categoryApi.getCategories({ limit: 100 })
+      console.log("[products] /categories response:", (res as { data?: unknown }).data ?? res)
+      setCategories(extractCategoryOptions(res))
     } catch (error) {
-      console.error("[products] fetch categories failed:", error);
-      toast.error("Failed to load category list");
+      console.error("[products] fetch categories failed:", error)
+      toast.error("Failed to load category list")
     }
-  };
+  }
 
   useEffect(() => {
-    fetchCategories();
+    fetchCategories()
     fetchProducts({
       page: 1,
       limit: pageSize,
       category: categoryFilter,
       search: search || undefined,
-    });
+    })
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [])
 
   const handleTableChange = (pagination: TablePaginationConfig) => {
-    const current = pagination.current || 1;
-    const size = pagination.pageSize || 10;
-    setPage(current);
-    setPageSize(size);
+    const current = pagination.current || 1
+    const size = pagination.pageSize || 10
+    setPage(current)
+    setPageSize(size)
     fetchProducts({
       page: current,
       limit: size,
       category: categoryFilter,
       search: search || undefined,
-    });
-  };
+    })
+  }
 
   const handleSearch = (value: string) => {
-    setSearch(value);
-    setPage(1);
+    setSearch(value)
+    setPage(1)
     fetchProducts({
       page: 1,
       limit: pageSize,
       category: categoryFilter,
       search: value || undefined,
-    });
-  };
+    })
+  }
 
   const handleCategoryFilterChange = (value?: string) => {
-    setCategoryFilter(value);
-    setPage(1);
+    setCategoryFilter(value)
+    setPage(1)
     fetchProducts({
       page: 1,
       limit: pageSize,
       category: value,
       search: search || undefined,
-    });
-  };
+    })
+  }
 
   const openCreateModal = () => {
-    setEditing(null);
-    form.resetFields();
-    setFileList([]);
-    setModalOpen(true);
-  };
+    setEditing(null)
+    form.resetFields()
+    setFileList([])
+    setModalOpen(true)
+  }
 
   const openEditModal = (row: ProductRow) => {
     const productCategoryId =
       (
         row.raw as ProductRow["raw"] & {
-          categoryId?: string | number;
-          categoriesId?: string | number;
-          category?: { _id?: string; id?: string } | string | number;
+          categoryId?: string | number
+          categoriesId?: string | number
+          category?: { _id?: string; id?: string } | string | number
         }
       ).categoryId ||
       (
         row.raw as ProductRow["raw"] & {
-          categoryId?: string | number;
-          categoriesId?: string | number;
-          category?: { _id?: string; id?: string } | string | number;
+          categoryId?: string | number
+          categoriesId?: string | number
+          category?: { _id?: string; id?: string } | string | number
         }
       ).categoriesId ||
-      (
-        typeof row.raw.category === "object" && row.raw.category
-          ? (row.raw.category as { _id?: string; id?: string })._id || (row.raw.category as { _id?: string; id?: string }).id
-          : row.raw.category
-      );
+      (typeof row.raw.category === "object" && row.raw.category
+        ? (row.raw.category as { _id?: string; id?: string })._id ||
+          (row.raw.category as { _id?: string; id?: string }).id
+        : row.raw.category)
 
-    setEditing(row);
+    setEditing(row)
     form.setFieldsValue({
       name: row.name,
       price: row.price,
@@ -223,29 +238,29 @@ export function Products() {
       category:
         (productCategoryId ? String(productCategoryId) : undefined) ||
         categories.find((c) => c.name === row.categoryName)?.id,
-    });
-    setFileList([]);
-    setModalOpen(true);
-  };
+    })
+    setFileList([])
+    setModalOpen(true)
+  }
 
   const handleDelete = async (row: ProductRow) => {
     try {
-      await deleteProduct(row.id);
-      toast.success("Deleted successfully");
+      await deleteProduct(row.id)
+      toast.success("Deleted successfully")
       fetchProducts({
         page,
         limit: pageSize,
         category: categoryFilter,
         search: search || undefined,
-      });
+      })
     } catch {
       // handled globally
     }
-  };
+  }
 
   const handleModalOk = async () => {
     try {
-      const values = await form.validateFields();
+      const values = await form.validateFields()
 
       const payload: Record<string, unknown> = {
         title: values.name,
@@ -253,47 +268,48 @@ export function Products() {
         price: Number(values.price),
         quantity: Number(values.stock),
         stock: Number(values.stock),
-      };
-
-      if (values.category) {
-        payload.category = values.category;
-        payload.categoryId = values.category;
-        payload.categoriesId = values.category;
       }
 
-      const currentUserId = (
-        user as typeof user & {
-          id?: string | number;
-          userId?: string | number;
-        }
-      )?._id ||
-      (
-        user as typeof user & {
-          id?: string | number;
-          userId?: string | number;
-        }
-      )?.id ||
-      (
-        user as typeof user & {
-          id?: string | number;
-          userId?: string | number;
-        }
-      )?.userId;
+      if (values.category) {
+        payload.category = values.category
+        payload.categoryId = values.category
+        payload.categoriesId = values.category
+      }
+
+      const currentUserId =
+        (
+          user as typeof user & {
+            id?: string | number
+            userId?: string | number
+          }
+        )?._id ||
+        (
+          user as typeof user & {
+            id?: string | number
+            userId?: string | number
+          }
+        )?.id ||
+        (
+          user as typeof user & {
+            id?: string | number
+            userId?: string | number
+          }
+        )?.userId
 
       if (!editing && currentUserId) {
-        const numericUserId = Number(currentUserId);
+        const numericUserId = Number(currentUserId)
         if (Number.isFinite(numericUserId) && numericUserId > 0) {
-          payload.userId = numericUserId;
+          payload.userId = numericUserId
         }
       }
 
       if (fileList[0]?.originFileObj) {
-        const base64Image = await fileToCompressedBase64(fileList[0].originFileObj as File);
+        const base64Image = await fileToCompressedBase64(fileList[0].originFileObj as File)
         if (base64Image.length > 2_000_000) {
-          toast.error("Image is too large. Please choose a smaller file.");
-          return;
+          toast.error("Image is too large. Please choose a smaller file.")
+          return
         }
-        payload.image = base64Image;
+        payload.image = base64Image
       }
 
       if (editing) {
@@ -301,40 +317,40 @@ export function Products() {
           editing.id ||
             (
               editing.raw as ProductRow["raw"] & {
-                productId?: string | number;
-                productsId?: string | number;
+                productId?: string | number
+                productsId?: string | number
               }
             ).productId ||
             (
               editing.raw as ProductRow["raw"] & {
-                productId?: string | number;
-                productsId?: string | number;
+                productId?: string | number
+                productsId?: string | number
               }
             ).productsId ||
-            ""
-        );
+            "",
+        )
         if (!editingId) {
-          toast.error("Missing product id");
-          return;
+          toast.error("Missing product id")
+          return
         }
-        await updateProduct(editingId, payload);
-        toast.success("Updated successfully");
+        await updateProduct(editingId, payload)
+        toast.success("Updated successfully")
       } else {
-        await createProduct(payload);
-        toast.success("Created successfully");
+        await createProduct(payload)
+        toast.success("Created successfully")
       }
 
-      setModalOpen(false);
+      setModalOpen(false)
       fetchProducts({
         page,
         limit: pageSize,
         category: categoryFilter,
         search: search || undefined,
-      });
+      })
     } catch (error) {
-      toast.error(getErrorMessage(error));
+      toast.error(getErrorMessage(error))
     }
-  };
+  }
 
   const columns: ColumnsType<ProductRow> = [
     {
@@ -386,14 +402,14 @@ export function Products() {
         </Space>
       ),
     },
-  ];
+  ]
 
   const pagination: PaginationProps = {
     current: page,
     pageSize,
     total,
     showSizeChanger: true,
-  };
+  }
 
   return (
     <div className="space-y-4">
@@ -494,15 +510,15 @@ export function Products() {
               total={total}
               showSizeChanger
               onChange={(p, ps) => {
-                const size = ps || pageSize;
-                setPage(p);
-                setPageSize(size);
+                const size = ps || pageSize
+                setPage(p)
+                setPageSize(size)
                 fetchProducts({
                   page: p,
                   limit: size,
                   category: categoryFilter,
                   search: search || undefined,
-                });
+                })
               }}
             />
           </div>
@@ -535,7 +551,10 @@ export function Products() {
             name="name"
             label={t("products.name", { defaultValue: "Product Name" })}
             rules={[
-              { required: true, message: t("products.nameRequired", { defaultValue: "Please enter a product name" }) },
+              {
+                required: true,
+                message: t("products.nameRequired", { defaultValue: "Please enter a product name" }),
+              },
             ]}
           >
             <Input />
@@ -543,7 +562,12 @@ export function Products() {
           <Form.Item
             name="price"
             label={t("products.price", { defaultValue: "Price" })}
-            rules={[{ required: true, message: t("products.priceRequired", { defaultValue: "Please enter a price" }) }]}
+            rules={[
+              {
+                required: true,
+                message: t("products.priceRequired", { defaultValue: "Please enter a price" }),
+              },
+            ]}
           >
             <InputNumber min={0} style={{ width: "100%" }} />
           </Form.Item>
@@ -551,13 +575,19 @@ export function Products() {
             name="stock"
             label={t("products.stock", { defaultValue: "Stock" })}
             rules={[
-              { required: true, message: t("products.stockRequired", { defaultValue: "Please enter stock quantity" }) },
+              {
+                required: true,
+                message: t("products.stockRequired", { defaultValue: "Please enter stock quantity" }),
+              },
             ]}
           >
             <InputNumber min={0} style={{ width: "100%" }} />
           </Form.Item>
           <Form.Item name="category" label={t("products.category", { defaultValue: "Category" })}>
-            <Select allowClear placeholder={t("products.selectCategory", { defaultValue: "Select category" })}>
+            <Select
+              allowClear
+              placeholder={t("products.selectCategory", { defaultValue: "Select category" })}
+            >
               {categories?.map((c) => (
                 <Option key={c.id} value={c.id}>
                   {c.name}
@@ -580,6 +610,5 @@ export function Products() {
         </Form>
       </Modal>
     </div>
-  );
+  )
 }
-

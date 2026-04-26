@@ -6,7 +6,7 @@ import { format, parse, startOfWeek, getDay } from "date-fns"
 import { enUS } from "date-fns/locale"
 import { ChevronLeft, ChevronRight, Search } from "lucide-react"
 import { Button, Input, Select } from "antd"
-import { cn } from "@/lib/utils"
+import { cn } from "@/utils/utils"
 import type { CalendarEvent, CalendarEventCategory } from "@/types/calendar"
 import "react-big-calendar/lib/css/react-big-calendar.css"
 
@@ -34,14 +34,14 @@ const categoryColors: Record<CalendarEventCategory, string> = {
   family: "#f59e0b",
 }
 
-export function CalendarMain({
+export const CalendarMain = ({
   events,
   currentDate,
   onDateChange,
   onSelectEvent,
   onNavigate,
   className,
-}: CalendarMainProps) {
+}: CalendarMainProps) => {
   const [view, setView] = React.useState<View>("month")
   const [search, setSearch] = React.useState("")
 
@@ -49,9 +49,7 @@ export function CalendarMain({
     if (!search.trim()) return events
     const s = search.toLowerCase()
     return events.filter(
-      (e) =>
-        e.title.toLowerCase().includes(s) ||
-        (e.description?.toLowerCase().includes(s) ?? false)
+      (e) => e.title.toLowerCase().includes(s) || (e.description?.toLowerCase().includes(s) ?? false),
     )
   }, [events, search])
 
@@ -62,7 +60,7 @@ export function CalendarMain({
         start: e.start instanceof Date ? e.start : new Date(e.start),
         end: e.end instanceof Date ? e.end : new Date(e.end),
       })),
-    [filteredEvents]
+    [filteredEvents],
   )
 
   const goPrev = () => {
@@ -111,9 +109,7 @@ export function CalendarMain({
             Today
           </Button>
         </div>
-        <h2 className="text-xl font-semibold">
-          {format(currentDate, "MMMM yyyy", { locale: enUS })}
-        </h2>
+        <h2 className="text-xl font-semibold">{format(currentDate, "MMMM yyyy", { locale: enUS })}</h2>
         <div className="flex items-center gap-2">
           <div className="relative flex-1 md:w-48">
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
