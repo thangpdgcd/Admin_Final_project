@@ -22,7 +22,14 @@ export interface CategoryPayload {
 
 export const categoryService = {
   async getAll(params: CategoryQueryParams = {}): Promise<NormalizedListResult<CategoryEntity>> {
-    const endpoints = ["/admin/categories", "/categories", "/category", "/categories/all"]
+    const endpoints = [
+      "/admin/categories",
+      "/admin/category",
+      "/categories",
+      "/category",
+      "/categories/all",
+      "/category/all",
+    ]
     let lastError: unknown
 
     for (const endpoint of endpoints) {
@@ -45,7 +52,12 @@ export const categoryService = {
   },
 
   async getById(id: string): Promise<CategoryEntity> {
-    const endpoints = [`/admin/categories/${id}`, `/categories/${id}`, `/category/${id}`]
+    const endpoints = [
+      `/admin/categories/${id}`,
+      `/admin/category/${id}`,
+      `/categories/${id}`,
+      `/category/${id}`,
+    ]
     let lastError: unknown
 
     for (const endpoint of endpoints) {
@@ -63,7 +75,10 @@ export const categoryService = {
   async create(payload: CategoryPayload): Promise<CategoryEntity> {
     const attempts: Array<() => Promise<{ data: unknown }>> = [
       () => api.post("/admin/categories", payload),
+      () => api.post("/admin/category", payload),
       () => api.post("/create-categories", payload),
+      () => api.post("/categories/create", payload),
+      () => api.post("/category/create", payload),
       () => api.post("/categories", payload),
       () => api.post("/category", payload),
     ]
@@ -84,6 +99,7 @@ export const categoryService = {
   async update(id: string, payload: CategoryPayload): Promise<CategoryEntity> {
     const attempts: Array<() => Promise<{ data: unknown }>> = [
       () => api.put(`/admin/categories/${id}`, payload),
+      () => api.put(`/admin/category/${id}`, payload),
       () => api.put(`/categories/${id}`, payload),
       () => api.put(`/category/${id}`, payload),
     ]
@@ -104,6 +120,7 @@ export const categoryService = {
   async delete(id: string): Promise<void> {
     const attempts: Array<() => Promise<unknown>> = [
       () => api.delete(`/admin/categories/${id}`),
+      () => api.delete(`/admin/category/${id}`),
       () => api.delete(`/categories/${id}`),
       () => api.delete(`/category/${id}`),
     ]
