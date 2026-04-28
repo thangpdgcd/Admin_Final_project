@@ -22,7 +22,7 @@ export interface CategoryPayload {
 
 export const categoryService = {
   async getAll(params: CategoryQueryParams = {}): Promise<NormalizedListResult<CategoryEntity>> {
-    const endpoints = ["/categories"]
+    const endpoints = ["/admin/categories", "/categories", "/category", "/categories/all"]
     let lastError: unknown
 
     for (const endpoint of endpoints) {
@@ -45,21 +45,79 @@ export const categoryService = {
   },
 
   async getById(id: string): Promise<CategoryEntity> {
-    const response = await api.get(`/categories/${id}`)
-    return unwrapApiData<CategoryEntity>(response.data)
+    const endpoints = [`/admin/categories/${id}`, `/categories/${id}`, `/category/${id}`]
+    let lastError: unknown
+
+    for (const endpoint of endpoints) {
+      try {
+        const response = await api.get(endpoint)
+        return unwrapApiData<CategoryEntity>(response.data)
+      } catch (error) {
+        lastError = error
+      }
+    }
+
+    throw lastError
   },
 
   async create(payload: CategoryPayload): Promise<CategoryEntity> {
-    const response = await api.post("/categories", payload)
-    return unwrapApiData<CategoryEntity>(response.data)
+    const attempts: Array<() => Promise<{ data: unknown }>> = [
+      () => api.post("/admin/categories", payload),
+      () => api.post("/create-categories", payload),
+      () => api.post("/categories", payload),
+      () => api.post("/category", payload),
+    ]
+
+    let lastError: unknown
+    for (const attempt of attempts) {
+      try {
+        const response = await attempt()
+        return unwrapApiData<CategoryEntity>(response.data)
+      } catch (error) {
+        lastError = error
+      }
+    }
+
+    throw lastError
   },
 
   async update(id: string, payload: CategoryPayload): Promise<CategoryEntity> {
-    const response = await api.put(`/categories/${id}`, payload)
-    return unwrapApiData<CategoryEntity>(response.data)
+    const attempts: Array<() => Promise<{ data: unknown }>> = [
+      () => api.put(`/admin/categories/${id}`, payload),
+      () => api.put(`/categories/${id}`, payload),
+      () => api.put(`/category/${id}`, payload),
+    ]
+
+    let lastError: unknown
+    for (const attempt of attempts) {
+      try {
+        const response = await attempt()
+        return unwrapApiData<CategoryEntity>(response.data)
+      } catch (error) {
+        lastError = error
+      }
+    }
+
+    throw lastError
   },
 
   async delete(id: string): Promise<void> {
-    await api.delete(`/categories/${id}`)
+    const attempts: Array<() => Promise<unknown>> = [
+      () => api.delete(`/admin/categories/${id}`),
+      () => api.delete(`/categories/${id}`),
+      () => api.delete(`/category/${id}`),
+    ]
+
+    let lastError: unknown
+    for (const attempt of attempts) {
+      try {
+        await attempt()
+        return
+      } catch (error) {
+        lastError = error
+      }
+    }
+
+    throw lastError
   },
 }
