@@ -61,6 +61,12 @@
     "nameRequired": "Vui lòng nhập tên sản phẩm",
     "priceRequired": "Vui lòng nhập giá",
     "stockRequired": "Vui lòng nhập số lượng tồn"
+    ,
+    "values": {
+      "cua_hang": {
+        "name": "Cửa hàng"
+      }
+    }
   },
   "dashboard": {
     "title": "Bảng điều khiển",
@@ -129,11 +135,42 @@
     "fetchFailed": "Tải danh mục thất bại",
     "deleteFailed": "Xoá danh mục thất bại",
     "saveFailed": "Lưu danh mục thất bại",
+    "nameRequired": "Vui lòng nhập tên danh mục",
     "columns": {
       "name": "Tên danh mục",
       "description": "Mô tả",
       "createdAt": "Ngày tạo",
       "actions": "Thao tác"
+    },
+    "values": {
+      "coffee": {
+        "name": "Cà phê",
+        "description": "Đồ uống cà phê truyền thống và espresso"
+      },
+      "tea": {
+        "name": "Trà",
+        "description": "Trà trái cây và trà sữa"
+      },
+      "bakery": {
+        "name": "Bánh ngọt",
+        "description": "Bánh ngọt và món ăn nhẹ"
+      },
+      "stationery": {
+        "name": "Văn phòng phẩm",
+        "description": "Đồ dùng học tập và văn phòng"
+      },
+      "electronics": {
+        "name": "Điện tử",
+        "description": "Thiết bị và phụ kiện điện tử"
+      },
+      "accessories": {
+        "name": "Phụ kiện",
+        "description": "Phụ kiện"
+      },
+      "office_tools": {
+        "name": "Dụng cụ văn phòng",
+        "description": "Dụng cụ hỗ trợ công việc văn phòng"
+      }
     }
   },
   "vouchers": {
@@ -142,5 +179,38 @@
     "new": "Thêm voucher",
     "searchPlaceholder": "Tìm theo mã…",
     "deactivated": "Đã vô hiệu hoá voucher"
+  },
+  "staffChat": {
+    "title": "Tin nhắn nhân viên",
+    "staffList": "Danh sách nhân viên",
+    "loading": "Đang tải...",
+    "checkLogin": "Kiểm tra đăng nhập quản trị viên và cấu hình API",
+    "retry": "Thử lại",
+    "noStaff": "Chưa có tài khoản nhân viên trong hệ thống.",
+    "addStaffHint": "Thêm nhân viên trong mục quản trị người dùng, rồi tải lại trang.",
+    "reload": "Tải lại",
+    "staff": "Nhân viên",
+    "active": "Đang hoạt động",
+    "offline": "Offline",
+    "selectStaff": "Chọn nhân viên để bắt đầu",
+    "messageStaff": "Nhắn cho nhân viên...",
+    "selectStaffToMessage": "Chọn nhân viên để nhắn tin",
+    "internalConversation": "Hội thoại nội bộ giữa quản trị viên và nhân viên."
+  },
+  "adminChat": {
+    "title": "Tin nhắn Admin",
+    "adminList": "Danh sách quản trị viên",
+    "loading": "Đang tải...",
+    "checkLogin": "Kiểm tra đăng nhập và cấu hình API",
+    "retry": "Thử lại",
+    "noAdmin": "Chưa có tài khoản quản trị viên trong hệ thống.",
+    "reload": "Tải lại",
+    "admin": "Admin",
+    "active": "Đang hoạt động",
+    "offline": "Offline",
+    "selectAdmin": "Chọn admin để bắt đầu",
+    "messageAdmin": "Nhắn cho admin...",
+    "selectAdminToMessage": "Chọn admin để nhắn tin",
+    "internalConversation": "Hội thoại nội bộ giữa nhân viên và quản trị viên."
   }
 }

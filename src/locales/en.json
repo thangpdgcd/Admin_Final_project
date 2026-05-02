@@ -61,6 +61,12 @@
     "nameRequired": "Please enter a product name",
     "priceRequired": "Please enter a price",
     "stockRequired": "Please enter stock quantity"
+    ,
+    "values": {
+      "cua_hang": {
+        "name": "Store"
+      }
+    }
   },
   "dashboard": {
     "title": "Admin Dashboard",
@@ -129,11 +135,42 @@
     "fetchFailed": "Failed to fetch categories",
     "deleteFailed": "Failed to delete category",
     "saveFailed": "Failed to save category",
+    "nameRequired": "Please enter a category name",
     "columns": {
       "name": "Category Name",
       "description": "Description",
       "createdAt": "Created Date",
       "actions": "Actions"
+    },
+    "values": {
+      "coffee": {
+        "name": "Coffee",
+        "description": "Traditional and espresso coffee drinks"
+      },
+      "tea": {
+        "name": "Tea",
+        "description": "Fruit tea and milk tea drinks"
+      },
+      "bakery": {
+        "name": "Bakery",
+        "description": "Pastries and sweet snacks"
+      },
+      "stationery": {
+        "name": "Stationery",
+        "description": "School and office stationery"
+      },
+      "electronics": {
+        "name": "Electronics",
+        "description": "Electronic devices and accessories"
+      },
+      "accessories": {
+        "name": "Accessories",
+        "description": "Accessories"
+      },
+      "office_tools": {
+        "name": "Office Tools",
+        "description": "Tools for office work"
+      }
     }
   },
   "vouchers": {
@@ -142,5 +179,38 @@
     "new": "New voucher",
     "searchPlaceholder": "Search by code…",
     "deactivated": "Voucher deactivated"
+  },
+  "staffChat": {
+    "title": "Staff messages",
+    "staffList": "Staff list",
+    "loading": "Loading...",
+    "checkLogin": "Check admin login and API config",
+    "retry": "Retry",
+    "noStaff": "No staff account in the system yet.",
+    "addStaffHint": "Add staff in user management, then reload this page.",
+    "reload": "Reload",
+    "staff": "Staff",
+    "active": "Active",
+    "offline": "Offline",
+    "selectStaff": "Select staff to start",
+    "messageStaff": "Message staff...",
+    "selectStaffToMessage": "Select staff to message",
+    "internalConversation": "Internal conversation between admin and staff."
+  },
+  "adminChat": {
+    "title": "Admin messages",
+    "adminList": "Admin list",
+    "loading": "Loading...",
+    "checkLogin": "Check login and API config",
+    "retry": "Retry",
+    "noAdmin": "No admin account in the system yet.",
+    "reload": "Reload",
+    "admin": "Admin",
+    "active": "Active",
+    "offline": "Offline",
+    "selectAdmin": "Select admin to start",
+    "messageAdmin": "Message admin...",
+    "selectAdminToMessage": "Select admin to message",
+    "internalConversation": "Internal conversation between staff and admin."
   }
 }
