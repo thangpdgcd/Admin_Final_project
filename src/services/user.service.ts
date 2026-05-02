@@ -11,6 +11,8 @@ export interface UserEntity {
   name: string
   email: string
   role: UserRole
+  address?: string
+  phoneNumber?: string
   avatar?: string | null
   createdAt: string
   updatedAt?: string
@@ -28,6 +30,8 @@ export interface CreateUserBody {
   email: string
   password: string
   role: UserRole
+  address?: string
+  phoneNumber?: string
 }
 
 export interface UpdateUserBody {
@@ -80,8 +84,9 @@ export const userService = {
       roleID,
     }
 
-    // Backend supports multiple create-user endpoints.
-    const endpoints = ["/register", "/users", "/user"]
+    // Staff/Admin API route is POST /api/create-users.
+    // Keep legacy fallbacks for older deployments.
+    const endpoints = ["/create-users", "/register", "/users", "/user"]
     let lastError: unknown
 
     for (let i = 0; i < endpoints.length; i++) {

@@ -6,6 +6,7 @@ import dayjs from "dayjs"
 import { categoryApi } from "@/api/categoryApi"
 import { toast } from "sonner"
 import { useTranslation } from "react-i18next"
+import { toI18nKey } from "@/utils/i18nKey"
 
 interface CategoryRow {
   key: string
@@ -94,8 +95,8 @@ export const Categories = () => {
       const mapped: CategoryRow[] = list.map((c) => ({
         key: normalizeCategoryId(c) || `category-${c.name}-${c.createdAt || Date.now()}`,
         id: normalizeCategoryId(c),
-        name: c.name,
-        description: c.description || "",
+        name: String(c.name || ""),
+        description: String(c.description || ""),
         createdAt: c.createdAt || "",
       }))
       setCategories(mapped)
@@ -166,10 +167,18 @@ export const Categories = () => {
     {
       title: t("categories.columns.name"),
       dataIndex: "name",
+      render: (value: string) => {
+        const key = toI18nKey(value)
+        return key ? t(`categories.values.${key}.name`, value) : value
+      },
     },
     {
       title: t("categories.columns.description"),
       dataIndex: "description",
+      render: (value: string, record) => {
+        const key = toI18nKey(record.name)
+        return key ? t(`categories.values.${key}.description`, value || "—") : value || "—"
+      },
     },
     {
       title: t("categories.columns.createdAt"),
@@ -240,7 +249,7 @@ export const Categories = () => {
           <Form.Item
             name="name"
             label={t("categories.columns.name")}
-            rules={[{ required: true, message: t("products.nameRequired") }]}
+            rules={[{ required: true, message: t("categories.nameRequired") }]}
           >
             <Input />
           </Form.Item>

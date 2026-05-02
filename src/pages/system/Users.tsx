@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { useForm } from "react-hook-form"
+import { Controller, useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
 import { Search, Plus, Pencil, Trash2, ReceiptText } from "lucide-react"
@@ -85,6 +85,8 @@ const createUserSchema = z.object({
   email: z.string().email("Valid email required"),
   password: z.string().min(6, "Password must be at least 6 characters"),
   role: z.enum(["admin", "staff", "user"]),
+  address: z.string().optional(),
+  phoneNumber: z.string().optional(),
 })
 
 const editUserSchema = z.object({
@@ -213,6 +215,8 @@ export const Users = () => {
       email: "",
       password: "",
       role: "user",
+      address: "",
+      phoneNumber: "",
     },
   })
 
@@ -544,7 +548,11 @@ export const Users = () => {
         <form onSubmit={createForm.handleSubmit(onCreateSubmit)} className="space-y-3">
           <div className="space-y-1">
             <Typography.Text strong>Name</Typography.Text>
-            <Input placeholder="Full name" {...createForm.register("name")} />
+            <Controller
+              control={createForm.control}
+              name="name"
+              render={({ field }) => <Input placeholder="Full name" {...field} value={field.value ?? ""} />}
+            />
             {createForm.formState.errors.name && (
               <Typography.Text type="danger" className="text-xs">
                 {createForm.formState.errors.name.message}
@@ -553,7 +561,13 @@ export const Users = () => {
           </div>
           <div className="space-y-1">
             <Typography.Text strong>Email</Typography.Text>
-            <Input type="email" placeholder="email@example.com" {...createForm.register("email")} />
+            <Controller
+              control={createForm.control}
+              name="email"
+              render={({ field }) => (
+                <Input type="email" placeholder="email@example.com" {...field} value={field.value ?? ""} />
+              )}
+            />
             {createForm.formState.errors.email && (
               <Typography.Text type="danger" className="text-xs">
                 {createForm.formState.errors.email.message}
@@ -562,12 +576,32 @@ export const Users = () => {
           </div>
           <div className="space-y-1">
             <Typography.Text strong>Password</Typography.Text>
-            <Input.Password placeholder="••••••••" {...createForm.register("password")} />
+            <Controller
+              control={createForm.control}
+              name="password"
+              render={({ field }) => <Input.Password placeholder="••••••••" {...field} value={field.value ?? ""} />}
+            />
             {createForm.formState.errors.password && (
               <Typography.Text type="danger" className="text-xs">
                 {createForm.formState.errors.password.message}
               </Typography.Text>
             )}
+          </div>
+          <div className="space-y-1">
+            <Typography.Text strong>Address</Typography.Text>
+            <Controller
+              control={createForm.control}
+              name="address"
+              render={({ field }) => <Input placeholder="Address" {...field} value={field.value ?? ""} />}
+            />
+          </div>
+          <div className="space-y-1">
+            <Typography.Text strong>Phone number</Typography.Text>
+            <Controller
+              control={createForm.control}
+              name="phoneNumber"
+              render={({ field }) => <Input placeholder="Phone number" {...field} value={field.value ?? ""} />}
+            />
           </div>
           <div className="space-y-1">
             <Typography.Text strong>Role</Typography.Text>
@@ -606,7 +640,11 @@ export const Users = () => {
         <form onSubmit={editForm.handleSubmit(onEditSubmit)} className="space-y-3">
           <div className="space-y-1">
             <Typography.Text strong>Name</Typography.Text>
-            <Input placeholder="Full name" {...editForm.register("name")} />
+            <Controller
+              control={editForm.control}
+              name="name"
+              render={({ field }) => <Input placeholder="Full name" {...field} value={field.value ?? ""} />}
+            />
             {editForm.formState.errors.name && (
               <Typography.Text type="danger" className="text-xs">
                 {editForm.formState.errors.name.message}
@@ -615,7 +653,13 @@ export const Users = () => {
           </div>
           <div className="space-y-1">
             <Typography.Text strong>Email</Typography.Text>
-            <Input type="email" placeholder="email@example.com" {...editForm.register("email")} />
+            <Controller
+              control={editForm.control}
+              name="email"
+              render={({ field }) => (
+                <Input type="email" placeholder="email@example.com" {...field} value={field.value ?? ""} />
+              )}
+            />
             {editForm.formState.errors.email && (
               <Typography.Text type="danger" className="text-xs">
                 {editForm.formState.errors.email.message}

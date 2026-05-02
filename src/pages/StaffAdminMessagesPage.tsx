@@ -8,8 +8,10 @@ import { useStaffAdminChat } from "@/features/teamChat/hooks/useStaffAdminChat"
 import { teamChatApi, type TeamMemberRow } from "@/features/teamChat/api/teamChatApi"
 import { normalizeApiError } from "@/utils/errors"
 import { useIsMobile } from "@/hooks/use-mobile"
+import { useTranslation } from "react-i18next"
 
 export const StaffAdminMessagesPage = () => {
+  const { t } = useTranslation()
   const isMobile = useIsMobile()
   const [adminList, setAdminList] = React.useState<TeamMemberRow[]>([])
   const [loading, setLoading] = React.useState(true)
@@ -60,22 +62,21 @@ export const StaffAdminMessagesPage = () => {
       <div className="flex h-14 items-center gap-2 border-b border-border px-4">
         <Headphones className="h-5 w-5 text-primary" />
         <div>
-          <h2 className="text-sm font-semibold leading-tight">Tin nhắn Admin</h2>
-          <p className="text-[10px] text-muted-foreground">Danh sách quản trị viên</p>
+          <h2 className="text-sm font-semibold leading-tight">{t("adminChat.title")}</h2>
+          <p className="text-[10px] text-muted-foreground">{t("adminChat.adminList")}</p>
         </div>
       </div>
       <div className="flex-1 overflow-y-auto p-2">
-        {loading && <p className="px-2 py-3 text-xs text-muted-foreground">Đang tải…</p>}
+        {loading && <p className="px-2 py-3 text-xs text-muted-foreground">{t("adminChat.loading")}</p>}
         {!loading && loadError && (
           <div className="mb-2 space-y-2 rounded-lg border border-destructive/40 bg-destructive/10 px-3 py-2.5 text-xs">
             <p className="text-destructive">{loadError}</p>
             <p className="text-muted-foreground">
-              Kiểm tra đăng nhập và cấu hình API (<code className="rounded bg-muted px-1">VITE_API_URL</code>
-              ).
+              {t("adminChat.checkLogin")} (<code className="rounded bg-muted px-1">VITE_API_URL</code>).
             </p>
             <Button size="small" className="h-8 w-full gap-1.5" onClick={() => void fetchAdminList()}>
               <RefreshCw className="h-3.5 w-3.5" />
-              Thử lại
+              {t("adminChat.retry")}
             </Button>
           </div>
         )}
@@ -113,7 +114,7 @@ export const StaffAdminMessagesPage = () => {
           })}
         {!loading && !loadError && adminList.length === 0 && (
           <div className="space-y-2 px-2 py-4 text-xs text-muted-foreground">
-            <p>Chưa có tài khoản quản trị viên trong hệ thống.</p>
+            <p>{t("adminChat.noAdmin")}</p>
             <Button
               type="text"
               size="small"
@@ -121,7 +122,7 @@ export const StaffAdminMessagesPage = () => {
               onClick={() => void fetchAdminList()}
             >
               <RefreshCw className="h-3.5 w-3.5" />
-              Tải lại
+              {t("adminChat.reload")}
             </Button>
           </div>
         )}
@@ -152,7 +153,7 @@ export const StaffAdminMessagesPage = () => {
           <div className="flex min-w-0 items-center gap-2">
             {isMobile && (
               <Button size="small" onClick={() => setDrawerOpen(true)}>
-                Admin
+                {t("adminChat.admin")}
               </Button>
             )}
             {selectedAdminId ? (
@@ -165,14 +166,14 @@ export const StaffAdminMessagesPage = () => {
                     {selected?.name || `Admin #${selectedAdminId}`}
                   </div>
                   <div className="text-xs text-muted-foreground">
-                    {onlineMap[String(selectedAdminId)] ? "Đang hoạt động" : "Offline"}
+                    {onlineMap[String(selectedAdminId)] ? t("adminChat.active") : t("adminChat.offline")}
                   </div>
                 </div>
               </>
             ) : (
               <div className="min-w-0">
-                <div className="truncate font-semibold">Tin nhắn Admin</div>
-                <div className="text-xs text-muted-foreground">Chọn admin để bắt đầu</div>
+                <div className="truncate font-semibold">{t("adminChat.title")}</div>
+                <div className="text-xs text-muted-foreground">{t("adminChat.selectAdmin")}</div>
               </div>
             )}
           </div>
@@ -247,7 +248,7 @@ export const StaffAdminMessagesPage = () => {
                   onKeyDown={(e) => {
                     if (e.key === "Enter") onSend()
                   }}
-                  placeholder="Nhắn cho admin…"
+                  placeholder={t("adminChat.messageAdmin")}
                   className="flex-1"
                 />
                 <Button type="primary" onClick={onSend} disabled={!input.trim()}>
@@ -259,8 +260,8 @@ export const StaffAdminMessagesPage = () => {
         ) : (
           <div className="flex flex-1 flex-col items-center justify-center gap-3 p-8 text-center text-muted-foreground">
             <MessageSquare className="h-14 w-14 opacity-40" />
-            <p className="text-sm font-medium text-foreground">Chọn admin để nhắn tin</p>
-            <p className="max-w-sm text-xs">Hội thoại nội bộ giữa nhân viên và quản trị viên.</p>
+            <p className="text-sm font-medium text-foreground">{t("adminChat.selectAdminToMessage")}</p>
+            <p className="max-w-sm text-xs">{t("adminChat.internalConversation")}</p>
           </div>
         )}
       </div>

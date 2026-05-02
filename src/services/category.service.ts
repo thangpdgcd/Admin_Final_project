@@ -5,6 +5,8 @@ export interface CategoryEntity {
   _id: string
   name: string
   description?: string
+  name_vi?: string
+  description_vi?: string
   createdAt: string
   updatedAt?: string
 }

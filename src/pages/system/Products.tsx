@@ -27,6 +27,8 @@ import { useProducts, type ProductRow } from "@/hooks/useProducts"
 import { getErrorMessage } from "@/types/lib/errorUtils"
 import { useAuth } from "@/hooks/useAuth"
 import { MotionHover } from "@/components/motion/MotionHover"
+import { toI18nKey } from "@/utils/i18nKey"
+import { ensureDynamicProductTranslation, getDynamicTranslation } from "@/utils/dynamicTranslations"
 
 const { Search } = Input
 const { Option } = Select
@@ -149,7 +151,14 @@ export const Products = () => {
     try {
       const res = await categoryApi.getCategories({ limit: 100 })
       console.log("[products] /categories response:", (res as { data?: unknown }).data ?? res)
-      setCategories(extractCategoryOptions(res))
+      const options = extractCategoryOptions(res).map((c) => {
+        const key = toI18nKey(c.name)
+        return {
+          ...c,
+          name: key ? t(`categories.values.${key}.name`, c.name) : c.name,
+        }
+      })
+      setCategories(options)
     } catch (error) {
       console.error("[products] fetch categories failed:", error)
       toast.error("Failed to load category list")
@@ -340,6 +349,12 @@ export const Products = () => {
         toast.success("Created successfully")
       }
 
+      const rawName = String(payload.name || payload.title || "").trim()
+      if (rawName) {
+        // Fire-and-forget: auto-generate a translation entry for new names.
+        void ensureDynamicProductTranslation(rawName)
+      }
+
       setModalOpen(false)
       fetchProducts({
         page,
@@ -361,6 +376,11 @@ export const Products = () => {
     {
       title: t("products.name", { defaultValue: "Product Name" }),
       dataIndex: "name",
+      render: (value: string) => {
+        const key = toI18nKey(value)
+        if (!key) return value
+        return getDynamicTranslation("products", key) || t(`products.values.${key}.name`, value)
+      },
     },
     {
       title: t("products.category", { defaultValue: "Category" }),

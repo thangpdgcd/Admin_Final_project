@@ -1,5 +1,6 @@
 import * as React from "react"
-import { Avatar, Button, Card, Input, Typography } from "antd"
+import { Avatar, Button, Card, Input, Typography, Upload } from "antd"
+import type { UploadFile } from "antd/es/upload/interface"
 import { useAuth } from "@/hooks/useAuth"
 import { authService } from "@/services/auth.service"
 import { getErrorMessage } from "@/utils/errorUtils"
@@ -20,6 +21,7 @@ export const ProfilePage = () => {
   const { t } = useTranslation()
   const [name, setName] = React.useState(user?.name || "")
   const [avatar, setAvatar] = React.useState(user?.avatar || "")
+  const [avatarFileList, setAvatarFileList] = React.useState<UploadFile[]>([])
   const [oldPassword, setOldPassword] = React.useState("")
   const [newPassword, setNewPassword] = React.useState("")
   const [confirmPassword, setConfirmPassword] = React.useState("")
@@ -34,9 +36,18 @@ export const ProfilePage = () => {
     }
     setSavingProfile(true)
     try {
-      const updated = await authService.updateProfile({ name: name.trim(), avatar })
+      let nextAvatar = avatar
+      const selectedFile = avatarFileList[0]?.originFileObj
+      if (selectedFile instanceof File) {
+        nextAvatar = await authService.uploadAvatar(selectedFile)
+      }
+
+      const updated = await authService.updateProfile({ name: name.trim(), avatar: nextAvatar })
       updateUser(updated)
+      setAvatar(nextAvatar)
+      setAvatarFileList([])
       toast.success("Profile updated")
+      logout()
     } catch (err) {
       toast.error(getErrorMessage(err))
     } finally {
@@ -85,7 +96,7 @@ export const ProfilePage = () => {
           <Typography.Text type="secondary">Current account details</Typography.Text>
         </div>
         <div className="mt-4 flex flex-col gap-4 sm:flex-row sm:items-center">
-          <Avatar size={64} src={user?.avatar ?? undefined}>
+          <Avatar size={64} src={avatar || user?.avatar || undefined}>
             {initials(user?.name)}
           </Avatar>
           <div className="space-y-1">
@@ -99,7 +110,7 @@ export const ProfilePage = () => {
       <Card>
         <div className="space-y-1">
           <Typography.Text strong>Update profile</Typography.Text>
-          <Typography.Text type="secondary">Update your display name and avatar URL</Typography.Text>
+          <Typography.Text type="secondary">Update your display name and choose avatar image</Typography.Text>
         </div>
         <div className="mt-4">
           <form className="space-y-4" onSubmit={onProfileSubmit}>
@@ -108,13 +119,16 @@ export const ProfilePage = () => {
               <Input id="profile-name" value={name} onChange={(event) => setName(event.target.value)} />
             </div>
             <div className="space-y-2">
-              <Typography.Text strong>Avatar URL</Typography.Text>
-              <Input
-                id="profile-avatar"
-                value={avatar}
-                onChange={(event) => setAvatar(event.target.value)}
-                placeholder="https://example.com/avatar.png"
-              />
+              <Typography.Text strong>Choose image</Typography.Text>
+              <Upload
+                maxCount={1}
+                accept="image/*"
+                beforeUpload={() => false}
+                fileList={avatarFileList}
+                onChange={({ fileList }) => setAvatarFileList(fileList)}
+              >
+                <Button>Choose image</Button>
+              </Upload>
             </div>
             <Button type="primary" htmlType="submit" loading={savingProfile}>
               Save profile

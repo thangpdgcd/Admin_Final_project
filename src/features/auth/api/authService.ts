@@ -23,6 +23,12 @@ export interface ChangePasswordPayload {
   newPassword: string
 }
 
+interface UploadAvatarResponse {
+  avatarUrl?: string
+  url?: string
+  avatar?: string
+}
+
 type AuthPayload = {
   user?: AuthUser | Record<string, unknown>
   token?: string
@@ -135,14 +141,38 @@ export const authService = {
   },
 
   async updateProfile(payload: { name: string; avatar?: string }): Promise<AuthUser> {
-    const response = await api.put("/users/me", payload)
-    const user = unwrapApiData<Record<string, unknown>>(response.data)
-    const normalizedUser: AuthUser = {
-      ...(user as unknown as AuthUser),
-      role: resolveUserRole(user),
+    const endpoints = ["/profile", "/users/me", "/user/me"]
+    let lastError: unknown
+
+    for (const endpoint of endpoints) {
+      try {
+        const response = await api.put(endpoint, payload, { suppressErrorToast: true })
+        const user = unwrapApiData<Record<string, unknown>>(response.data)
+        const normalizedUser: AuthUser = {
+          ...(user as unknown as AuthUser),
+          role: resolveUserRole(user),
+        }
+        setStoredUser(normalizedUser)
+        return normalizedUser
+      } catch (error) {
+        lastError = error
+      }
     }
-    setStoredUser(normalizedUser)
-    return normalizedUser
+
+    throw lastError
+  },
+
+  async uploadAvatar(file: File): Promise<string> {
+    const body = new FormData()
+    body.append("file", file)
+
+    const response = await api.post("/upload-avatar", body, {
+      headers: { "Content-Type": "multipart/form-data" },
+    })
+    const payload = unwrapApiData<UploadAvatarResponse>(response.data)
+    const url = payload.avatarUrl || payload.url || payload.avatar
+    if (!url) throw new Error("Upload succeeded but avatar URL is missing")
+    return url
   },
 
   async changePassword(payload: ChangePasswordPayload): Promise<void> {
