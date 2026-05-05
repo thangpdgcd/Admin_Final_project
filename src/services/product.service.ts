@@ -49,9 +49,13 @@ export const productService = {
     const endpoints = ["/products", "/product", "/products/all"]
     let lastError: unknown
 
+    // Some backends expect `name` instead of `search` for text search.
+    const query: Record<string, unknown> =
+      params.search && String(params.search).trim() !== "" ? { ...params, name: params.search } : { ...params }
+
     for (const endpoint of endpoints) {
       try {
-        const response = await api.get(endpoint, { params })
+        const response = await api.get(endpoint, { params: query })
         return normalizeList<ProductEntity>(response.data, [
           "products",
           "results",

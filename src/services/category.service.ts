@@ -25,7 +25,10 @@ export interface CategoryPayload {
 export const categoryService = {
   async getAll(params: CategoryQueryParams = {}): Promise<NormalizedListResult<CategoryEntity>> {
     // Backend routes: GET /api/categories
-    const response = await api.get("/categories", { params })
+    // Some backends expect `name` instead of `search` for text search.
+    const query: Record<string, unknown> =
+      params.search && String(params.search).trim() !== "" ? { ...params, name: params.search } : { ...params }
+    const response = await api.get("/categories", { params: query })
     return normalizeList<CategoryEntity>(response.data, [
       "categories",
       "results",

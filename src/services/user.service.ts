@@ -54,7 +54,10 @@ const resolveUserId = (value: string | number | undefined | null): string => Str
 
 export const userService = {
   async getAll(params: UserQueryParams = {}): Promise<NormalizedListResult<UserEntity>> {
-    const response = await api.get("/users", { params })
+    // Some backends expect `name` instead of `search` for text search.
+    const query: Record<string, unknown> =
+      params.search && String(params.search).trim() !== "" ? { ...params, name: params.search } : { ...params }
+    const response = await api.get("/users", { params: query })
     return normalizeList<UserEntity>(response.data, ["users", "results", "items", "data"])
   },
 

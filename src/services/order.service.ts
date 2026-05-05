@@ -34,9 +34,13 @@ export const orderService = {
     const endpoints = ["/orders", "/order"]
     let lastError: unknown
 
+    // Some backends expect `name` instead of `search` (e.g. customer name search).
+    const query: Record<string, unknown> =
+      params.search && String(params.search).trim() !== "" ? { ...params, name: params.search } : { ...params }
+
     for (const endpoint of endpoints) {
       try {
-        const response = await api.get(endpoint, { params })
+        const response = await api.get(endpoint, { params: query })
         return normalizeList<OrderEntity>(response.data, [
           "orders",
           "order",

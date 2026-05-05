@@ -171,7 +171,7 @@ export const Users = () => {
   const filteredUsers = React.useMemo(() => {
     if (!search.trim()) return users
     const s = search.toLowerCase()
-    return users.filter((u) => u.name.toLowerCase().includes(s) || u.email.toLowerCase().includes(s))
+    return users.filter((u) => u.name.toLowerCase().includes(s))
   }, [users, search])
 
   const totalPages = Math.ceil(total / limit) || 1
