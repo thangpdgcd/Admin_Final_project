@@ -15,6 +15,8 @@ export interface ProductEntity {
   productsId?: string | number
   name?: string
   title?: string
+  name_vi?: string
+  name_en?: string
   category?: {
     _id: string
     name: string
@@ -32,6 +34,8 @@ export interface ProductEntity {
 export interface ProductPayload {
   name?: string
   title?: string
+  name_vi?: string
+  name_en?: string
   price?: number | string
   stock?: number | string
   quantity?: number | string
@@ -49,9 +53,12 @@ export const productService = {
     const endpoints = ["/products", "/product", "/products/all"]
     let lastError: unknown
 
-    // Some backends expect `name` instead of `search` for text search.
-    const query: Record<string, unknown> =
-      params.search && String(params.search).trim() !== "" ? { ...params, name: params.search } : { ...params }
+    // Backend search parameter names vary across deployments.
+    // We keep `search` and also provide common aliases (`name`, `q`, `keyword`).
+    const searchValue = params.search && String(params.search).trim() !== "" ? String(params.search).trim() : ""
+    const query: Record<string, unknown> = searchValue
+      ? { ...params, name: searchValue, q: searchValue, keyword: searchValue }
+      : { ...params }
 
     for (const endpoint of endpoints) {
       try {
@@ -96,6 +103,8 @@ export const productService = {
   async create(payload: ProductPayload): Promise<ProductEntity> {
     const normalizedPayload: ProductPayload = {
       name: String(payload.name || payload.title || "").trim(),
+      name_vi: payload.name_vi ? String(payload.name_vi).trim() : undefined,
+      name_en: payload.name_en ? String(payload.name_en).trim() : undefined,
       price: payload.price !== undefined ? Number(payload.price) : undefined,
       stock: payload.stock !== undefined ? Number(payload.stock) : Number(payload.quantity ?? 0),
       categoriesId: payload.categoriesId ?? payload.categoryId ?? payload.category,
@@ -129,6 +138,8 @@ export const productService = {
 
     const normalizedPayload: ProductPayload = {
       name: String(payload.name || payload.title || "").trim(),
+      name_vi: payload.name_vi ? String(payload.name_vi).trim() : undefined,
+      name_en: payload.name_en ? String(payload.name_en).trim() : undefined,
       price: payload.price !== undefined ? Number(payload.price) : undefined,
       stock: payload.stock !== undefined ? Number(payload.stock) : Number(payload.quantity ?? 0),
       categoriesId: payload.categoriesId ?? payload.categoryId ?? payload.category,

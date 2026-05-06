@@ -20,7 +20,7 @@ import type { ColumnsType, TablePaginationConfig } from "antd/es/table"
 import type { UploadFile } from "antd/es/upload/interface"
 import { UploadOutlined } from "@ant-design/icons"
 import dayjs from "dayjs"
-import { categoryApi } from "@/api/categoryApi"
+import { categoryApi } from "@/api/categoryapi/categoryApi"
 import { toast } from "sonner"
 import { useTranslation } from "react-i18next"
 import { useProducts, type ProductRow } from "@/hooks/useProducts"
@@ -28,7 +28,35 @@ import { getErrorMessage } from "@/types/lib/errorUtils"
 import { useAuth } from "@/hooks/useAuth"
 import { MotionHover } from "@/components/motion/MotionHover"
 import { toI18nKey } from "@/utils/i18nKey"
-import { ensureDynamicProductTranslation, getDynamicTranslation } from "@/utils/dynamicTranslations"
+import { ensureDynamicProductTranslation, getDynamicTranslation, getDynamicTranslationEntry } from "@/utils/dynamicTranslations"
+import { Typography } from "antd"
+
+const translateText = async (q: string, target: "vi" | "en"): Promise<string> => {
+  const payload = { q, target }
+  const tryProxy = async () => {
+    const res = await fetch("/api/translate", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    })
+    if (!res.ok) throw new Error(`Translate proxy failed (${res.status})`)
+    const data = (await res.json()) as { translatedText?: string }
+    return String(data.translatedText || "").trim()
+  }
+
+  const tryDirect = async () => {
+    const res = await fetch("https://libretranslate.de/translate", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ ...payload, source: "auto", format: "text" }),
+    })
+    if (!res.ok) throw new Error(`Translate direct failed (${res.status})`)
+    const data = (await res.json()) as { translatedText?: string }
+    return String(data.translatedText || "").trim()
+  }
+
+  return tryProxy().catch(() => tryDirect())
+}
 
 const { Search } = Input
 const { Option } = Select
@@ -100,7 +128,7 @@ const formatVnd = (value: number | undefined | null): string => {
 }
 
 export const Products = () => {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
   const { user } = useAuth()
   const { loading, products, total, fetchProducts, createProduct, updateProduct, deleteProduct } =
     useProducts()
@@ -111,11 +139,53 @@ export const Products = () => {
   const [categoryFilter, setCategoryFilter] = useState<string | undefined>()
   const [search, setSearch] = useState<string>("")
   const [categories, setCategories] = useState<{ id: string; name: string }[]>([])
+  const [, bumpTranslationVersion] = useState(0)
+
+  useEffect(() => {
+    const handler = () => bumpTranslationVersion((v) => v + 1)
+    window.addEventListener("dynamicTranslationsUpdated", handler)
+    return () => window.removeEventListener("dynamicTranslationsUpdated", handler)
+  }, [])
 
   const [modalOpen, setModalOpen] = useState(false)
   const [editing, setEditing] = useState<ProductRow | null>(null)
   const [form] = Form.useForm()
   const [fileList, setFileList] = useState<UploadFile[]>([])
+  const nameValue = Form.useWatch("name", form)
+  const [namePreview, setNamePreview] = useState<string>("")
+  const [namePreviewLoading, setNamePreviewLoading] = useState(false)
+
+  useEffect(() => {
+    const raw = String(nameValue ?? "").trim()
+    if (!raw) {
+      setNamePreview("")
+      setNamePreviewLoading(false)
+      return
+    }
+    const currentLng = i18n.language === "en" ? "en" : "vi"
+    const target: "vi" | "en" = currentLng === "en" ? "vi" : "en"
+    let cancelled = false
+    setNamePreviewLoading(true)
+    const tmr = window.setTimeout(() => {
+      translateText(raw, target)
+        .then((translated) => {
+          if (cancelled) return
+          setNamePreview(translated)
+        })
+        .catch(() => {
+          if (cancelled) return
+          setNamePreview("")
+        })
+        .finally(() => {
+          if (cancelled) return
+          setNamePreviewLoading(false)
+        })
+    }, 450)
+    return () => {
+      cancelled = true
+      window.clearTimeout(tmr)
+    }
+  }, [i18n.language, nameValue])
 
   const extractCategoryOptions = (payload: unknown): { id: string; name: string }[] => {
     const getListFromRecord = (value: Record<string, unknown>): unknown[] => {
@@ -175,6 +245,23 @@ export const Products = () => {
     })
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
+
+  useEffect(() => {
+    // Auto-warm translations for visible items so switching language works immediately.
+    // Limit concurrency to avoid spamming the translate API.
+    const names = products.map((p) => p.name).filter(Boolean).slice(0, 30)
+    if (names.length === 0) return
+    let cancelled = false
+    ;(async () => {
+      for (const n of names) {
+        if (cancelled) return
+        await ensureDynamicProductTranslation(String(n))
+      }
+    })()
+    return () => {
+      cancelled = true
+    }
+  }, [products])
 
   const handleTableChange = (pagination: TablePaginationConfig) => {
     const current = pagination.current || 1
@@ -279,6 +366,28 @@ export const Products = () => {
         stock: Number(values.stock),
       }
 
+      // Persist translations in DB fields when backend supports them.
+      // If only one language is provided, auto-translate to fill the other.
+      const currentLng = i18n.language === "en" ? "en" : "vi"
+      const rawName = String(values.name || "").trim()
+      if (rawName) {
+        if (currentLng === "vi") {
+          payload.name_vi = rawName
+          try {
+            payload.name_en = await translateText(rawName, "en")
+          } catch {
+            // ignore; fallback to dynamic/local translate path
+          }
+        } else {
+          payload.name_en = rawName
+          try {
+            payload.name_vi = await translateText(rawName, "vi")
+          } catch {
+            // ignore
+          }
+        }
+      }
+
       if (values.category) {
         payload.category = values.category
         payload.categoryId = values.category
@@ -349,11 +458,8 @@ export const Products = () => {
         toast.success("Created successfully")
       }
 
-      const rawName = String(payload.name || payload.title || "").trim()
-      if (rawName) {
-        // Fire-and-forget: auto-generate a translation entry for new names.
-        void ensureDynamicProductTranslation(rawName)
-      }
+      const nameForDynamic = String(payload.name_vi || payload.name_en || payload.name || payload.title || "").trim()
+      if (nameForDynamic) void ensureDynamicProductTranslation(nameForDynamic)
 
       setModalOpen(false)
       fetchProducts({
@@ -376,10 +482,20 @@ export const Products = () => {
     {
       title: t("products.name", { defaultValue: "Product Name" }),
       dataIndex: "name",
-      render: (value: string) => {
-        const key = toI18nKey(value)
-        if (!key) return value
-        return getDynamicTranslation("products", key) || t(`products.values.${key}.name`, value)
+      render: (_value: string, record) => {
+        const raw = record.raw as unknown as Record<string, unknown>
+        const nameVi = typeof raw.name_vi === "string" ? raw.name_vi : undefined
+        const nameEn = typeof raw.name_en === "string" ? raw.name_en : undefined
+        const base = String(_value || record.name || "").trim()
+        const preferred = i18n.language === "en" ? (nameEn || base) : (nameVi || base)
+
+        const key = toI18nKey(preferred)
+        if (!key) return preferred
+        const dyn = getDynamicTranslation("products", key)
+        if (dyn) return dyn
+        const entry = getDynamicTranslationEntry("products", key)
+        if (entry) return entry.vi || entry.en || preferred
+        return t(`products.values.${key}.name`, preferred)
       },
     },
     {
@@ -579,6 +695,12 @@ export const Products = () => {
           >
             <Input />
           </Form.Item>
+          <div className="mb-3">
+            <Typography.Text type="secondary" className="text-xs">
+              Preview ({i18n.language === "en" ? "VI" : "EN"}):{" "}
+              {namePreviewLoading ? "Translating…" : namePreview || "—"}
+            </Typography.Text>
+          </div>
           <Form.Item
             name="price"
             label={t("products.price", { defaultValue: "Price" })}

@@ -98,6 +98,18 @@ const editUserSchema = z.object({
 type CreateUserFormValues = z.infer<typeof createUserSchema>
 type EditUserFormValues = z.infer<typeof editUserSchema>
 
+const resetPasswordSchema = z
+  .object({
+    password: z.string().min(6, "Password must be at least 6 characters"),
+    confirmPassword: z.string().min(6, "Password must be at least 6 characters"),
+  })
+  .refine((v) => v.password === v.confirmPassword, {
+    message: "Password confirmation does not match",
+    path: ["confirmPassword"],
+  })
+
+type ResetPasswordFormValues = z.infer<typeof resetPasswordSchema>
+
 const limit = 10
 
 export const Users = () => {
@@ -115,6 +127,7 @@ export const Users = () => {
   const [createOpen, setCreateOpen] = React.useState(false)
   const [editUser, setEditUser] = React.useState<User | null>(null)
   const [deleteUser, setDeleteUser] = React.useState<User | null>(null)
+  const [resetPasswordUser, setResetPasswordUser] = React.useState<User | null>(null)
   const [ordersUser, setOrdersUser] = React.useState<User | null>(null)
   const [ordersLoading, setOrdersLoading] = React.useState(false)
   const [userOrders, setUserOrders] = React.useState<OrderEntity[]>([])
@@ -142,6 +155,7 @@ export const Users = () => {
         page,
         limit,
         role: (roleFilter as UserRole | "") || undefined,
+        search: search.trim() || undefined,
       })
       setUsers(
         res.users.map((user) => ({
@@ -156,7 +170,7 @@ export const Users = () => {
     } finally {
       setLoading(false)
     }
-  }, [page, roleFilter, resolveRowUserId])
+  }, [limit, page, roleFilter, resolveRowUserId, search])
 
   React.useEffect(() => {
     if (usersHook.error) {
@@ -229,6 +243,14 @@ export const Users = () => {
     },
   })
 
+  const resetPasswordForm = useForm<ResetPasswordFormValues>({
+    resolver: zodResolver(resetPasswordSchema),
+    defaultValues: {
+      password: "",
+      confirmPassword: "",
+    },
+  })
+
   React.useEffect(() => {
     if (editUser) {
       editForm.reset({
@@ -297,6 +319,26 @@ export const Users = () => {
     }
   }
 
+  const onResetPasswordSubmit = async (values: ResetPasswordFormValues) => {
+    if (!resetPasswordUser) return
+    setSubmitting(true)
+    try {
+      const id = resolveRowUserId(resetPasswordUser)
+      if (!id) {
+        toast.error(t("users.missingUserId"))
+        return
+      }
+      await userService.updateUser(id, { password: values.password })
+      toast.success("Password updated")
+      setResetPasswordUser(null)
+      resetPasswordForm.reset()
+    } catch (err) {
+      toast.error(getErrorMessage(err))
+    } finally {
+      setSubmitting(false)
+    }
+  }
+
   const userColumns = React.useMemo<ColumnsType<User>>(
     () => [
       {
@@ -353,6 +395,18 @@ export const Users = () => {
               disabled={!resolveRowUserId(user)}
             >
               <Pencil className="h-4 w-4" />
+            </Button>
+            <Button
+              type="text"
+              onClick={() => {
+                setResetPasswordUser(user)
+                resetPasswordForm.reset()
+              }}
+              aria-label="Reset password"
+              disabled={!resolveRowUserId(user)}
+              title="Reset password"
+            >
+              Reset
             </Button>
             <Button
               type="text"
@@ -635,7 +689,7 @@ export const Users = () => {
         destroyOnHidden
       >
         <Typography.Paragraph type="secondary" className="mt-0">
-          Update user details. Password cannot be changed here.
+          Update user details. Use “Reset” in the Actions column to change a user's password.
         </Typography.Paragraph>
         <form onSubmit={editForm.handleSubmit(onEditSubmit)} className="space-y-3">
           <div className="space-y-1">
@@ -692,6 +746,64 @@ export const Users = () => {
             <Button onClick={() => setEditUser(null)}>Cancel</Button>
             <Button type="primary" htmlType="submit" loading={submitting}>
               Save
+            </Button>
+          </div>
+        </form>
+      </Modal>
+
+      {/* Reset Password Modal */}
+      <Modal
+        open={!!resetPasswordUser}
+        onCancel={() => {
+          setResetPasswordUser(null)
+          resetPasswordForm.reset()
+        }}
+        title={`Reset password${resetPasswordUser ? `: ${resetPasswordUser.name}` : ""}`}
+        footer={null}
+        destroyOnHidden
+      >
+        <Typography.Paragraph type="secondary" className="mt-0">
+          Set a new password for this user. They will use it the next time they sign in.
+        </Typography.Paragraph>
+        <form onSubmit={resetPasswordForm.handleSubmit(onResetPasswordSubmit)} className="space-y-3">
+          <div className="space-y-1">
+            <Typography.Text strong>New password</Typography.Text>
+            <Controller
+              control={resetPasswordForm.control}
+              name="password"
+              render={({ field }) => <Input.Password placeholder="••••••••" {...field} value={field.value ?? ""} />}
+            />
+            {resetPasswordForm.formState.errors.password && (
+              <Typography.Text type="danger" className="text-xs">
+                {resetPasswordForm.formState.errors.password.message}
+              </Typography.Text>
+            )}
+          </div>
+          <div className="space-y-1">
+            <Typography.Text strong>Confirm password</Typography.Text>
+            <Controller
+              control={resetPasswordForm.control}
+              name="confirmPassword"
+              render={({ field }) => <Input.Password placeholder="••••••••" {...field} value={field.value ?? ""} />}
+            />
+            {resetPasswordForm.formState.errors.confirmPassword && (
+              <Typography.Text type="danger" className="text-xs">
+                {resetPasswordForm.formState.errors.confirmPassword.message}
+              </Typography.Text>
+            )}
+          </div>
+
+          <div className="flex justify-end gap-2 pt-2">
+            <Button
+              onClick={() => {
+                setResetPasswordUser(null)
+                resetPasswordForm.reset()
+              }}
+            >
+              Cancel
+            </Button>
+            <Button type="primary" htmlType="submit" loading={submitting}>
+              Update password
             </Button>
           </div>
         </form>

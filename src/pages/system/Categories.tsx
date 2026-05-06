@@ -1,12 +1,40 @@
 import { useEffect, useState } from "react"
-import { Table, Input, Button, Space, Modal, Form } from "antd"
+import { Table, Input, Button, Space, Modal, Form, Typography } from "antd"
 import type { PaginationProps } from "antd"
 import type { ColumnsType, TablePaginationConfig } from "antd/es/table"
 import dayjs from "dayjs"
-import { categoryApi } from "@/api/categoryApi"
+import { categoryApi } from "@/api/categoryapi/categoryApi"
 import { toast } from "sonner"
 import { useTranslation } from "react-i18next"
 import { toI18nKey } from "@/utils/i18nKey"
+import { ensureDynamicCategoryTranslation, getDynamicTranslation } from "@/utils/dynamicTranslations"
+
+const translateText = async (q: string, target: "vi" | "en"): Promise<string> => {
+  const payload = { q, target }
+  const tryProxy = async () => {
+    const res = await fetch("/api/translate", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    })
+    if (!res.ok) throw new Error(`Translate proxy failed (${res.status})`)
+    const data = (await res.json()) as { translatedText?: string }
+    return String(data.translatedText || "").trim()
+  }
+
+  const tryDirect = async () => {
+    const res = await fetch("https://libretranslate.de/translate", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ ...payload, source: "auto", format: "text" }),
+    })
+    if (!res.ok) throw new Error(`Translate direct failed (${res.status})`)
+    const data = (await res.json()) as { translatedText?: string }
+    return String(data.translatedText || "").trim()
+  }
+
+  return tryProxy().catch(() => tryDirect())
+}
 
 interface CategoryRow {
   key: string
@@ -28,7 +56,8 @@ interface CategoryApiItem {
 const { Search } = Input
 
 export const Categories = () => {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
+  const [, bumpTranslationVersion] = useState(0)
   const [loading, setLoading] = useState(false)
   const [categories, setCategories] = useState<CategoryRow[]>([])
   const [page, setPage] = useState(1)
@@ -38,6 +67,47 @@ export const Categories = () => {
   const [modalOpen, setModalOpen] = useState(false)
   const [editing, setEditing] = useState<CategoryRow | null>(null)
   const [form] = Form.useForm()
+  const nameValue = Form.useWatch("name", form)
+  const [namePreview, setNamePreview] = useState<string>("")
+  const [namePreviewLoading, setNamePreviewLoading] = useState(false)
+
+  useEffect(() => {
+    const handler = () => bumpTranslationVersion((v) => v + 1)
+    window.addEventListener("dynamicTranslationsUpdated", handler)
+    return () => window.removeEventListener("dynamicTranslationsUpdated", handler)
+  }, [])
+
+  useEffect(() => {
+    const raw = String(nameValue ?? "").trim()
+    if (!raw) {
+      setNamePreview("")
+      setNamePreviewLoading(false)
+      return
+    }
+    const currentLng = i18n.language === "en" ? "en" : "vi"
+    const target: "vi" | "en" = currentLng === "en" ? "vi" : "en"
+    let cancelled = false
+    setNamePreviewLoading(true)
+    const tmr = window.setTimeout(() => {
+      translateText(raw, target)
+        .then((translated) => {
+          if (cancelled) return
+          setNamePreview(translated)
+        })
+        .catch(() => {
+          if (cancelled) return
+          setNamePreview("")
+        })
+        .finally(() => {
+          if (cancelled) return
+          setNamePreviewLoading(false)
+        })
+    }, 450)
+    return () => {
+      cancelled = true
+      window.clearTimeout(tmr)
+    }
+  }, [i18n.language, nameValue])
 
   const extractCategoryList = (payload: unknown): CategoryApiItem[] => {
     if (Array.isArray(payload)) {
@@ -113,6 +183,21 @@ export const Categories = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
+  useEffect(() => {
+    const names = categories.map((c) => c.name).filter(Boolean).slice(0, 30)
+    if (names.length === 0) return
+    let cancelled = false
+    ;(async () => {
+      for (const n of names) {
+        if (cancelled) return
+        await ensureDynamicCategoryTranslation(String(n))
+      }
+    })()
+    return () => {
+      cancelled = true
+    }
+  }, [categories])
+
   const handleTableChange = (pagination: TablePaginationConfig) => {
     const current = pagination.current || 1
     const size = pagination.pageSize || 10
@@ -151,11 +236,34 @@ export const Categories = () => {
   const handleModalOk = async () => {
     try {
       const values = await form.validateFields()
+      const rawName = String(values?.name ?? "").trim()
+      const currentLng = i18n.language === "en" ? "en" : "vi"
+
+      // Persist translations in DB fields when backend supports them.
+      if (rawName) {
+        if (currentLng === "vi") {
+          values.name_vi = rawName
+          try {
+            values.name_en = await translateText(rawName, "en")
+          } catch {}
+        } else {
+          values.name_en = rawName
+          try {
+            values.name_vi = await translateText(rawName, "vi")
+          } catch {}
+        }
+      }
       if (editing) {
         await categoryApi.updateCategory(editing.id, values)
       } else {
         await categoryApi.createCategory(values)
       }
+
+      if (rawName) {
+        // Fire-and-forget: auto-generate translations for new/edited category names.
+        void ensureDynamicCategoryTranslation(rawName)
+      }
+
       setModalOpen(false)
       fetchCategories(page, pageSize, search)
     } catch {
@@ -168,8 +276,10 @@ export const Categories = () => {
       title: t("categories.columns.name"),
       dataIndex: "name",
       render: (value: string) => {
-        const key = toI18nKey(value)
-        return key ? t(`categories.values.${key}.name`, value) : value
+        const preferred = value
+        const key = toI18nKey(preferred)
+        const dynamic = key ? getDynamicTranslation("categories", key) : undefined
+        return dynamic || (key ? t(`categories.values.${key}.name`, preferred) : preferred)
       },
     },
     {
@@ -253,6 +363,12 @@ export const Categories = () => {
           >
             <Input />
           </Form.Item>
+          <div className="mb-3">
+            <Typography.Text type="secondary" className="text-xs">
+              Preview ({i18n.language === "en" ? "VI" : "EN"}):{" "}
+              {namePreviewLoading ? "Translating…" : namePreview || "—"}
+            </Typography.Text>
+          </div>
           <Form.Item name="description" label={t("categories.columns.description")}>
             <Input.TextArea rows={3} />
           </Form.Item>

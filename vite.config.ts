@@ -8,6 +8,14 @@ export default defineConfig({
   plugins: [react(), tailwindcss()],
   server: {
     port: 5174,
+    proxy: {
+      "/api/translate": {
+        target: "https://libretranslate.de",
+        changeOrigin: true,
+        secure: true,
+        rewrite: (p) => p.replace(/^\/api\/translate$/, "/translate"),
+      },
+    },
   },
   resolve: {
     alias: {

@@ -6,7 +6,7 @@ import dayjs from "dayjs"
 import { toast } from "sonner"
 import { useTranslation } from "react-i18next"
 
-import { orderApi } from "@/api/orderApi"
+import { orderApi } from "@/api/orderapi/orderApi"
 import { mapOrdersToRows, type BackendOrder, type OrderRow } from "@/features/orders/model/normalizeOrder"
 
 const { Search } = Input
@@ -87,6 +87,15 @@ export const OrdersPage = () => {
     void fetchOrders(1, pageSize)
   }, [fetchOrders, pageSize])
 
+  const normalizedSearch = searchTerm.trim().toLowerCase()
+  const filteredOrders = useCallback(
+    (list: OrderRow[]) => {
+      if (!normalizedSearch) return list
+      return list.filter((o) => String(o.customer ?? "").toLowerCase().includes(normalizedSearch))
+    },
+    [normalizedSearch],
+  )
+
   const handleTableChange = (pagination: TablePaginationConfig) => {
     const current = pagination.current || 1
     const size = pagination.pageSize || 10
@@ -149,6 +158,8 @@ export const OrdersPage = () => {
 
   const pagination: PaginationProps = { current: page, pageSize, total, showSizeChanger: true }
 
+  const visibleOrders = filteredOrders(orders)
+
   return (
     <div className="space-y-4">
       <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
@@ -172,12 +183,12 @@ export const OrdersPage = () => {
               <Skeleton active paragraph={{ rows: 3 }} />
               <Skeleton active paragraph={{ rows: 3 }} />
             </>
-          ) : orders.length === 0 ? (
+          ) : visibleOrders.length === 0 ? (
             <div className="rounded-lg border border-border/50 bg-muted/20 p-6 text-center text-sm text-muted-foreground">
               {t("orders.noOrders")}
             </div>
           ) : (
-            orders.map((o) => (
+            visibleOrders.map((o) => (
               <Card key={o.key} size="small" className="rounded-xl border border-border/50">
                 <div className="flex items-start justify-between gap-3">
                   <div className="min-w-0">
@@ -213,7 +224,7 @@ export const OrdersPage = () => {
             <Pagination
               current={page}
               pageSize={pageSize}
-              total={total}
+              total={normalizedSearch ? visibleOrders.length : total}
               showSizeChanger
               onChange={(p, ps) => {
                 const size = ps || pageSize
@@ -227,7 +238,7 @@ export const OrdersPage = () => {
       ) : (
         <Table<OrderRow>
           columns={columns}
-          dataSource={orders}
+          dataSource={visibleOrders}
           loading={loading}
           pagination={pagination}
           onChange={handleTableChange}

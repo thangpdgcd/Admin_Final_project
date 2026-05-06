@@ -5,6 +5,7 @@ type Lang = "vi" | "en"
 type Entry = { vi?: string; en?: string }
 
 const STORAGE_KEY = "dynamic_translations_v1"
+const EVENT_NAME = "dynamicTranslationsUpdated"
 
 type Store = {
   products?: Record<string, Entry>
@@ -24,6 +25,14 @@ const readStore = (): Store => {
 
 const writeStore = (store: Store): void => {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(store))
+  // Notify the current tab so UIs can re-render when async translations arrive.
+  window.dispatchEvent(new Event(EVENT_NAME))
+}
+
+export const subscribeDynamicTranslations = (listener: () => void): (() => void) => {
+  const handler = () => listener()
+  window.addEventListener(EVENT_NAME, handler)
+  return () => window.removeEventListener(EVENT_NAME, handler)
 }
 
 export const getDynamicTranslation = (scope: keyof Store, key: string): string | undefined => {
@@ -36,6 +45,13 @@ export const getDynamicTranslation = (scope: keyof Store, key: string): string |
   return entry[lng]
 }
 
+export const getDynamicTranslationEntry = (scope: keyof Store, key: string): Entry | undefined => {
+  const store = readStore()
+  const table = store[scope]
+  if (!table) return undefined
+  return table[key]
+}
+
 export const setDynamicTranslation = (scope: keyof Store, key: string, entry: Entry): void => {
   const store = readStore()
   const table = (store[scope] ?? {}) as Record<string, Entry>
@@ -44,11 +60,31 @@ export const setDynamicTranslation = (scope: keyof Store, key: string, entry: En
   writeStore(store)
 }
 
+const translateViaProxy = async (text: string, target: Lang): Promise<string> => {
+  const controller = new AbortController()
+  const timeout = window.setTimeout(() => controller.abort(), 4500)
+  try {
+    const res = await fetch("/api/translate", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ q: text, target }),
+      signal: controller.signal,
+    })
+    if (!res.ok) {
+      throw new Error(`Translate proxy failed (${res.status})`)
+    }
+    const data = (await res.json()) as { translatedText?: string }
+    return String(data.translatedText || "").trim()
+  } finally {
+    window.clearTimeout(timeout)
+  }
+}
+
 const translateViaLibre = async (text: string, target: Lang): Promise<string> => {
   const controller = new AbortController()
   const timeout = window.setTimeout(() => controller.abort(), 4500)
   try {
-    const res = await fetch("https://libretranslate.com/translate", {
+    const res = await fetch("https://libretranslate.de/translate", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ q: text, source: "auto", target, format: "text" }),
@@ -76,9 +112,31 @@ export const ensureDynamicProductTranslation = async (name: string): Promise<voi
 
   setDynamicTranslation("products", key, { [lng]: name })
   try {
-    const translated = await translateViaLibre(name, other)
+    // Prefer Vercel serverless proxy in production to avoid CORS/rate-limit issues.
+    const translated = await translateViaProxy(name, other).catch(() => translateViaLibre(name, other))
     if (translated) {
       setDynamicTranslation("products", key, { [other]: translated })
+    }
+  } catch {
+    // Ignore: fall back to original text or static locale dictionary
+  }
+}
+
+export const ensureDynamicCategoryTranslation = async (name: string): Promise<void> => {
+  const key = toI18nKey(name)
+  if (!key) return
+
+  const existing = getDynamicTranslation("categories", key)
+  if (existing) return
+
+  const lng = (i18n.language === "en" ? "en" : "vi") as Lang
+  const other: Lang = lng === "en" ? "vi" : "en"
+
+  setDynamicTranslation("categories", key, { [lng]: name })
+  try {
+    const translated = await translateViaProxy(name, other).catch(() => translateViaLibre(name, other))
+    if (translated) {
+      setDynamicTranslation("categories", key, { [other]: translated })
     }
   } catch {
     // Ignore: fall back to original text or static locale dictionary

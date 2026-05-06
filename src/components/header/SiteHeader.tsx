@@ -53,11 +53,13 @@ export const SiteHeader = ({
         <div className="w-64 max-w-full min-w-0">
           <SearchTrigger onClick={() => setSearchOpen(true)} />
         </div>
+        <Divider orientation="vertical" className="mx-1 hidden sm:block" />
+        <div className="flex items-center gap-1 sm:gap-2 shrink-0">
+          <LanguageToggle />
+          <ModeToggle />
+        </div>
       </div>
       <div className="flex items-center gap-1 sm:gap-2 shrink-0">
-        <Divider orientation="vertical" className="mx-1 hidden sm:block" />
-        <LanguageToggle />
-        <ModeToggle />
         <AppButton type="text" onClick={handleLogout} aria-label={t("header.logout")}>
           <span className="inline-flex items-center gap-2 text-sm font-medium">
             <LogOut className="h-4 w-4" />

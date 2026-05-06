@@ -41,6 +41,7 @@ export interface UpdateUserBody {
   roleId?: string | number
   roleID?: string | number
   avatar?: string
+  password?: string
 }
 
 /** Backend `Users.roleID`: "1" user, "2" admin, "3" staff */
@@ -54,9 +55,12 @@ const resolveUserId = (value: string | number | undefined | null): string => Str
 
 export const userService = {
   async getAll(params: UserQueryParams = {}): Promise<NormalizedListResult<UserEntity>> {
-    // Some backends expect `name` instead of `search` for text search.
-    const query: Record<string, unknown> =
-      params.search && String(params.search).trim() !== "" ? { ...params, name: params.search } : { ...params }
+    // Backend search parameter names vary across deployments.
+    // We keep `search` and also provide common aliases (`name`, `q`, `keyword`).
+    const searchValue = params.search && String(params.search).trim() !== "" ? String(params.search).trim() : ""
+    const query: Record<string, unknown> = searchValue
+      ? { ...params, name: searchValue, q: searchValue, keyword: searchValue }
+      : { ...params }
     const response = await api.get("/users", { params: query })
     return normalizeList<UserEntity>(response.data, ["users", "results", "items", "data"])
   },
@@ -118,6 +122,7 @@ export const userService = {
     if (payload.name !== undefined) body.name = payload.name
     if (payload.email !== undefined) body.email = payload.email
     if (payload.avatar !== undefined) body.avatar = payload.avatar
+    if (payload.password !== undefined) body.password = payload.password
     const rawRole = payload.role ?? payload.roleId ?? payload.roleID
     if (rawRole !== undefined && rawRole !== null && `${rawRole}`.trim() !== "") {
       const r = `${rawRole}`.trim().toLowerCase()

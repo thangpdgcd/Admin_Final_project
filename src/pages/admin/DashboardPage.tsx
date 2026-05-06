@@ -283,15 +283,15 @@ export const DashboardPage = () => {
 
   const latestOrdersColumns = useMemo<ColumnsType<(typeof latestOrders)[number]>>(
     () => [
-      { title: "Customer", dataIndex: "customer", key: "customer" },
+      { title: t("orders.customer"), dataIndex: "customer", key: "customer" },
       {
-        title: "Total",
+        title: t("orders.totalPrice"),
         dataIndex: "total",
         key: "total",
         render: (v: number) => formatCurrency(Number(v || 0)),
       },
       {
-        title: "Status",
+        title: t("orders.status"),
         dataIndex: "status",
         key: "status",
         render: (v: string) => {
@@ -302,15 +302,15 @@ export const DashboardPage = () => {
               ? "green"
               : "orange"
           const label = s.includes("deliver")
-            ? "Đã giao"
+            ? t("orders.delivered")
             : s.includes("paid") || s.includes("confirm")
-              ? "Đã thanh toán"
-              : "Chưa thanh toán"
+              ? t("orders.paid")
+              : t("orders.unpaid")
           return <Tag color={color}>{label}</Tag>
         },
       },
     ],
-    [],
+    [t],
   )
 
   const latestUsersColumns = useMemo<ColumnsType<(typeof latestUsers)[number]>>(
@@ -368,7 +368,7 @@ export const DashboardPage = () => {
         <div className="mt-4">
           {renderedAnalyticsSeries.length === 0 ? (
             <div className="flex h-[260px] items-center justify-center rounded-lg border border-border/60 bg-background/20 text-sm text-muted-foreground">
-              Không có dữ liệu.
+              {t("common.noData")}
             </div>
           ) : (
             <div className="h-[260px] rounded-xl border border-border/60 bg-background/20 px-2 pt-2">
@@ -431,7 +431,7 @@ export const DashboardPage = () => {
       <div className="grid grid-cols-1 gap-3 sm:gap-4 lg:grid-cols-2">
         <Card>
           <Typography.Title level={5} className="mb-4!">
-            Latest orders
+            {t("dashboard.recentOrders")}
           </Typography.Title>
           <Table
             rowKey="id"
@@ -439,7 +439,7 @@ export const DashboardPage = () => {
             dataSource={latestOrders}
             pagination={false}
             loading={loading}
-            locale={{ emptyText: loading ? "Loading..." : "No orders found" }}
+            locale={{ emptyText: loading ? "Loading..." : t("orders.noOrders") }}
             size="small"
           />
         </Card>

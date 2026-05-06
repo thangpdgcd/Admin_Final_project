@@ -4,8 +4,9 @@ import { normalizeList, unwrapApiData, type NormalizedListResult } from "@/utils
 export interface CategoryEntity {
   _id: string
   name: string
-  description?: string
   name_vi?: string
+  name_en?: string
+  description?: string
   description_vi?: string
   createdAt: string
   updatedAt?: string
@@ -19,15 +20,20 @@ export interface CategoryQueryParams {
 
 export interface CategoryPayload {
   name: string
+  name_vi?: string
+  name_en?: string
   description?: string
 }
 
 export const categoryService = {
   async getAll(params: CategoryQueryParams = {}): Promise<NormalizedListResult<CategoryEntity>> {
     // Backend routes: GET /api/categories
-    // Some backends expect `name` instead of `search` for text search.
-    const query: Record<string, unknown> =
-      params.search && String(params.search).trim() !== "" ? { ...params, name: params.search } : { ...params }
+    // Backend search parameter names vary across deployments.
+    // We keep `search` and also provide common aliases (`name`, `q`, `keyword`).
+    const searchValue = params.search && String(params.search).trim() !== "" ? String(params.search).trim() : ""
+    const query: Record<string, unknown> = searchValue
+      ? { ...params, name: searchValue, q: searchValue, keyword: searchValue }
+      : { ...params }
     const response = await api.get("/categories", { params: query })
     return normalizeList<CategoryEntity>(response.data, [
       "categories",

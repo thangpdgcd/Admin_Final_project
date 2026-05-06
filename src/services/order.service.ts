@@ -34,9 +34,12 @@ export const orderService = {
     const endpoints = ["/orders", "/order"]
     let lastError: unknown
 
-    // Some backends expect `name` instead of `search` (e.g. customer name search).
-    const query: Record<string, unknown> =
-      params.search && String(params.search).trim() !== "" ? { ...params, name: params.search } : { ...params }
+    // Backend search parameter names vary across deployments.
+    // We keep `search` and also provide common aliases (`name`, `q`, `keyword`).
+    const searchValue = params.search && String(params.search).trim() !== "" ? String(params.search).trim() : ""
+    const query: Record<string, unknown> = searchValue
+      ? { ...params, name: searchValue, q: searchValue, keyword: searchValue }
+      : { ...params }
 
     for (const endpoint of endpoints) {
       try {
