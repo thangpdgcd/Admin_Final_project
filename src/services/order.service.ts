@@ -87,17 +87,58 @@ export const orderService = {
   async update(id: string, payload: UpdateOrderPayload): Promise<OrderEntity> {
     const status = String(payload.status || "").toLowerCase()
 
+    // Backends differ in resource naming (`/orders` vs `/order`) and update semantics.
+    // We keep a fallback list to maximize compatibility across deployments.
+    const quiet = { suppressErrorToast: true }
     const attempts: Array<() => Promise<unknown>> = [
-      () => api.put(`/orders/${id}/status`, payload),
-      () => api.patch(`/orders/${id}/status`, payload),
-      () => api.put(`/orders/${id}`, payload),
+      // preferred
+      () => api.put(`/orders/${id}/status`, payload, quiet),
+      () => api.patch(`/orders/${id}/status`, payload, quiet),
+      () => api.put(`/orders/${id}`, payload, quiet),
+      () => api.patch(`/orders/${id}`, payload, quiet),
+
+      // legacy singular
+      () => api.put(`/order/${id}/status`, payload, quiet),
+      () => api.patch(`/order/${id}/status`, payload, quiet),
+      () => api.put(`/order/${id}`, payload, quiet),
+      () => api.patch(`/order/${id}`, payload, quiet),
+
+      // common "update" style endpoints
+      () => api.put(`/orders/update/${id}`, payload, quiet),
+      () => api.patch(`/orders/update/${id}`, payload, quiet),
+      () => api.put(`/order/update/${id}`, payload, quiet),
+      () => api.patch(`/order/update/${id}`, payload, quiet),
+
+      // admin-scoped (some deployments)
+      () => api.put(`/admin/orders/${id}/status`, payload, quiet),
+      () => api.patch(`/admin/orders/${id}/status`, payload, quiet),
+      () => api.put(`/admin/orders/${id}`, payload, quiet),
+      () => api.patch(`/admin/orders/${id}`, payload, quiet),
     ]
 
     if (status === "confirmed" || status === "paid") {
-      attempts.push(() => api.put(`/orders/${id}/pay`, {}))
+      attempts.push(() => api.put(`/orders/${id}/pay`, {}, quiet))
+      attempts.push(() => api.put(`/order/${id}/pay`, {}, quiet))
+      attempts.push(() => api.put(`/admin/orders/${id}/pay`, {}, quiet))
     }
     if (status === "delivered") {
-      attempts.push(() => api.put(`/orders/${id}/deliver`, {}))
+      attempts.push(() => api.put(`/orders/${id}/deliver`, {}, quiet))
+      attempts.push(() => api.put(`/order/${id}/deliver`, {}, quiet))
+      attempts.push(() => api.put(`/admin/orders/${id}/deliver`, {}, quiet))
+    }
+    if (status === "cancelled" || status === "canceled") {
+      attempts.push(() => api.put(`/orders/${id}/cancel`, {}, quiet))
+      attempts.push(() => api.patch(`/orders/${id}/cancel`, {}, quiet))
+      attempts.push(() => api.put(`/orders/cancel/${id}`, {}, quiet))
+      attempts.push(() => api.patch(`/orders/cancel/${id}`, {}, quiet))
+
+      attempts.push(() => api.put(`/order/${id}/cancel`, {}, quiet))
+      attempts.push(() => api.patch(`/order/${id}/cancel`, {}, quiet))
+      attempts.push(() => api.put(`/order/cancel/${id}`, {}, quiet))
+      attempts.push(() => api.patch(`/order/cancel/${id}`, {}, quiet))
+
+      attempts.push(() => api.put(`/admin/orders/${id}/cancel`, {}, quiet))
+      attempts.push(() => api.patch(`/admin/orders/${id}/cancel`, {}, quiet))
     }
 
     let lastError: unknown
@@ -115,10 +156,24 @@ export const orderService = {
 
   async delete(id: string): Promise<void> {
     // Prefer plural `/orders/:id` (current backend). Keep fallbacks for legacy deployments.
+    const quiet = { suppressErrorToast: true }
     const attempts: Array<() => Promise<unknown>> = [
-      () => api.delete(`/orders/${id}`),
-      () => api.delete(`/orders/delete/${id}`),
-      () => api.delete(`/order/${id}`),
+      () => api.delete(`/orders/${id}`, quiet),
+      () => api.delete(`/orders/delete/${id}`, quiet),
+      () => api.delete(`/orders/remove/${id}`, quiet),
+      () => api.delete(`/orders/${id}/delete`, quiet),
+      () => api.delete(`/orders/${id}/remove`, quiet),
+
+      () => api.delete(`/order/${id}`, quiet),
+      () => api.delete(`/order/delete/${id}`, quiet),
+      () => api.delete(`/order/remove/${id}`, quiet),
+      () => api.delete(`/order/${id}/delete`, quiet),
+      () => api.delete(`/order/${id}/remove`, quiet),
+
+      // admin-scoped (some deployments)
+      () => api.delete(`/admin/orders/${id}`, quiet),
+      () => api.delete(`/admin/orders/delete/${id}`, quiet),
+      () => api.delete(`/admin/orders/remove/${id}`, quiet),
     ]
 
     let lastError: unknown
