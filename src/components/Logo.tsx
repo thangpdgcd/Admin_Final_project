@@ -10,7 +10,7 @@ export const Logo = ({ size = 24, className, ...props }: LogoProps) => {
   return (
     <div className={cn("flex items-center gap-2 font-semibold", className)} {...props}>
       <Coffee size={size} className="text-primary" />
-      <span>Coffee Shop</span>
+      <span>admin</span>
     </div>
   )
 }
